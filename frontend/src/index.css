@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  font-family: "Cinzel", "Inter", system-ui, serif;
+}
+
+/* Liquid Glass tokens */
+/* Title font */
+.font-cinzel {
+  font-family: "Cinzel", serif;
+}
+
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.18);
+  --glass-blur: 20px;
+  --glass-text: rgba(255, 255, 255, 0.92);
+  --glass-muted: rgba(255, 255, 255, 0.55);
+  --glass-divider: rgba(255, 255, 255, 0.14);
+}
+
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+}
+
+.glass-pill {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: 9999px;
+}
+
+/* Judge panel / reflection fade-in */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.6s ease forwards;
+}
+
+/* Research panel slide-in from top */
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Audio progress bar */
+#audio-progress {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.3);
+  width: 0%;
+  transition: width 0.1s linear;
+  z-index: 100;
+}
+
+/* Verdict tints */
+.verdict-pro {
+  background: rgba(147, 197, 253, 0.12);
+  border: 1px solid rgba(147, 197, 253, 0.28);
+}
+
+.verdict-con {
+  background: rgba(252, 165, 165, 0.12);
+  border: 1px solid rgba(252, 165, 165, 0.28);
+}
+
+.verdict-tie {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* Score badge pop on update */
+@keyframes scorePop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+.score-pop {
+  animation: scorePop 0.25s ease;
+}
+
+/* Loading state — gladiators preparing */
+@keyframes arenaLoadingPulse {
+  0%, 100% { opacity: 0.25; }
+  50%       { opacity: 0.7; }
+}
+
+.arena-loading-text {
+  animation: arenaLoadingPulse 2.4s ease-in-out infinite;
+}
+
+.loading-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  animation: arenaLoadingPulse 1.2s ease-in-out infinite;
+}
+
+/* Hidden scrollbar utilities */
+.agent-body {
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.agent-body::-webkit-scrollbar { display: none; }
+
+.arena-scroll { scrollbar-width: none; }
+.arena-scroll::-webkit-scrollbar { display: none; }
