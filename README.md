@@ -14,7 +14,7 @@ A real-time AI debate arena where two agents argue PRO and CON on any topic acro
 |---|---|---|
 | PRO | Maximus | Argues in favour of the proposition |
 | CON | Nexus | Argues against the proposition |
-| Judge | — | Delivers verdict after Round 3 |
+| Judge | Arbitrus | Delivers verdict after Round 3 |
 
 ## Quality Layer
 
@@ -26,6 +26,24 @@ Four modules run automatically on every debate to improve argument quality and r
 | **Integrity Gate** | After every Tavily search (2× per round) | Checks source relevance — retries with a broader query if ≥3 sources are weak, or shows a warning banner if signal is low |
 | **Speech Evaluator** | After every agent speech (2× per round) | Checks length, evidence citation, and opponent rebuttal — triggers one regeneration with a stricter prompt if the speech fails. Disable with `SPEECH_EVAL_ENABLED=false` |
 | **Artifact Writer** | Once, after judge phase | Saves the full debate to `debates/{topic}_{timestamp}.json` — speeches, sources, verdict, reflections |
+
+## Deep Research Pipeline
+
+Five research levels run on every agent turn, controlled by `DEEP_RESEARCH_ENABLED` (default: `true`):
+
+| Level | What it does |
+|---|---|
+| **1 — Deep Tavily** | 10 results per query, `advanced` search depth, 400-char snippets |
+| **2 — Multi-query** | Gemini generates 3 distinct queries per agent (empirical evidence / statistics / expert opinion for PRO; adversarial angles for CON) |
+| **3 — Full article fetch** | Top source URL fetched with httpx, HTML stripped, first 2 500 chars injected as `[FULL ARTICLE]` into the agent prompt |
+| **4 — Wikipedia anchor** | Wikipedia REST summary fetched once at round 1 and cached in `topic_meta`; injected as `[BACKGROUND]` ground-truth block in every agent prompt |
+| **5 — Claim extraction** | Gemini Flash Lite extracts 5 verifiable claims from sources; injected as `[EXTRACTED CLAIMS]` backbone for the agent to cite |
+
+Levels 2–5 are skipped when `DEEP_RESEARCH_ENABLED=false` (falls back to a single heuristic query per agent).
+
+## Audience Curveball
+
+After Round 2 the arena pauses and opens a microphone + text input. The audience can issue a challenge that both agents must address in Round 3. Voice input is transcribed via the Web Speech API.
 
 ## Setup
 
@@ -49,6 +67,9 @@ FISH_AUDIO_VOICE_JUDGE=voice_reference_id
 
 # Optional — set to false to skip speech quality checks (faster, lower latency)
 SPEECH_EVAL_ENABLED=true
+
+# Optional — set to false to disable deep research pipeline (faster, fewer API calls)
+DEEP_RESEARCH_ENABLED=true
 ```
 
 ### 2. Backend
@@ -78,9 +99,10 @@ Optionally set `VITE_API_URL` in `frontend/.env` to point at a remote backend (d
 1. Type a debate topic and click **Begin**.
 2. Watch PRO (Maximus) and CON (Nexus) argue — each agent researches the web before speaking.
 3. After each round a **Start Round N** button appears — click to continue.
-4. After Round 3 a **Judge** button appears — click to see the verdict and post-debate reflections.
-5. Click **Reset** to start a new debate.
-6. Completed debates are saved to `backend/debates/` automatically.
+4. After Round 2 an audience curveball prompt appears — submit a challenge via voice or text.
+5. After Round 3 a **Judge** button appears — click to see Arbitrus's verdict and post-debate reflections.
+6. Click **Reset** to start a new debate.
+7. Completed debates are saved to `backend/debates/` automatically.
 
 ## API
 
@@ -92,13 +114,13 @@ Optionally set `VITE_API_URL` in `frontend/.env` to point at a remote backend (d
 
 **`/debate/round` request body**
 ```json
-{ "topic": "string", "round_num": 1, "history": [], "research_log": [], "topic_meta": {} }
+{ "topic": "string", "round_num": 1, "history": [], "research_log": [], "topic_meta": {}, "curveball": null }
 ```
-Emits `warning` (optional), `researching`, `speech`, and `round_complete` (with updated `history`, `research_log`, `topic_meta`) SSE events, then `[DONE]`.
+Emits `warning` (optional), `researching`, `speech`, `round_complete` (with updated `history`, `research_log`, `topic_meta`), and `awaiting_curveball` (after round 2) SSE events, then `[DONE]`.
 
 **`/debate/judge` request body**
 ```json
-{ "topic": "string", "history": [...], "research_log": [...], "topic_meta": {...} }
+{ "topic": "string", "history": [...], "research_log": [...], "topic_meta": {...}, "curveball": null }
 ```
 Emits `speech` (JUDGE), `reflection` (×2), and `artifact_saved` SSE events, then `[DONE]`.
 
@@ -106,9 +128,10 @@ Emits `speech` (JUDGE), `reflection` (×2), and `artifact_saved` SSE events, the
 
 | Event | Description |
 |---|---|
-| `researching` | Agent is querying Tavily — includes `query` and `sources` |
+| `researching` | Agent is querying Tavily — includes `queries` (list), `sources`, `wikipedia_anchor`, `claims` |
 | `speech` | Agent speech text + base64 audio + score |
 | `round_complete` | End of round — carries `history`, `research_log`, `topic_meta` for next request |
+| `awaiting_curveball` | Emitted after round 2 — UI opens audience challenge input |
 | `reflection` | Post-verdict agent reflection |
 | `warning` | Weak research signal detected — shown as dismissible banner |
 | `artifact_saved` | Debate written to disk — includes `filepath` |
@@ -123,8 +146,8 @@ Emits `speech` (JUDGE), `reflection` (×2), and `artifact_saved` SSE events, the
 │   ├── main.py              FastAPI app · /debate/round · /debate/judge
 │   ├── agents.py            Gemini agent logic (PRO, CON, JUDGE, reflect)
 │   ├── tts.py               Fish Audio S2 Pro synthesis
-│   ├── research.py          Tavily web search (5 results per query)
-│   ├── query_generator.py   Focused search query generation per agent
+│   ├── research.py          Tavily search · wikipedia_anchor · fetch_top_source · extract_claims
+│   ├── query_generator.py   3-query generation per agent via Gemini
 │   ├── classifier.py        Topic shape classifier (canonical/current-event/comparison/tricky)
 │   ├── integrity_gate.py    Source relevance checker with retry logic
 │   ├── speech_eval.py       Speech quality checker with regeneration on failure
@@ -141,7 +164,7 @@ Emits `speech` (JUDGE), `reflection` (×2), and `artifact_saved` SSE events, the
     │       ├── TopicInput.jsx
     │       ├── RoundRow.jsx
     │       ├── AgentCard.jsx      Speech text · score · sources panel
-    │       ├── ResearchPanel.jsx  Live research indicator
+    │       ├── ResearchPanel.jsx  Live research indicator (queries · Wikipedia badge · claims)
     │       ├── JudgePanel.jsx
     │       └── ReflectionCard.jsx
     ├── tailwind.config.js
@@ -157,9 +180,13 @@ Emits `speech` (JUDGE), `reflection` (×2), and `artifact_saved` SSE events, the
 
 ## Requests per debate
 
-| Phase | Min requests | Max (with retries) |
-|---|---|---|
-| Round 1 | 11 (incl. classifier) | 15 |
-| Round 2 or 3 | 10 | 14 |
-| Judge phase | 6 | 6 |
-| **Full debate** | **37** | **49** |
+With `DEEP_RESEARCH_ENABLED=true` (default):
+
+| Phase | Tavily calls | Gemini calls | Total (min) |
+|---|---|---|---|
+| Round 1 | 6 (3 PRO + 3 CON) | 5 (classifier + 2 query-gen + 2 claim-extract) | 11 + classifier |
+| Round 2 or 3 | 6 | 4 (2 query-gen + 2 claim-extract) | 10 |
+| Judge phase | 0 | 6 (judge + 2 reflect + artifact) | 6 |
+| **Full debate** | **18** | **19** | **~37** |
+
+With `DEEP_RESEARCH_ENABLED=false`: 6 Tavily calls total (1 per agent per round).

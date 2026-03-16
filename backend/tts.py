@@ -1,6 +1,6 @@
 import os
 import base64
-import ormsgpack
+import msgpack
 import httpx
 from dotenv import load_dotenv, find_dotenv
 
@@ -37,7 +37,7 @@ async def synthesize(text: str, agent: str) -> str:
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.post(
                 "https://api.fish.audio/v1/tts",
-                content=ormsgpack.packb(payload),
+                content=msgpack.packb(payload),
                 headers={
                     "Authorization": f"Bearer {FISH_AUDIO_API_KEY}",
                     "Content-Type": "application/msgpack",
