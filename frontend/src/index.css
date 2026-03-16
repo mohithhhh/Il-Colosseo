@@ -118,6 +118,21 @@ html, body, #root {
   animation: arenaLoadingPulse 1.2s ease-in-out infinite;
 }
 
+/* Microphone pulse animation */
+@keyframes mic-pulse {
+  from { opacity: 0.6; }
+  to   { opacity: 1.0; }
+}
+
+/* Topic input form hover animation */
+.topic-input-form {
+  transition: transform 0.25s ease-out;
+}
+
+.topic-input-form:hover {
+  transform: scale(1.03);
+}
+
 /* Hidden scrollbar utilities */
 .agent-body {
   overflow-y: auto;

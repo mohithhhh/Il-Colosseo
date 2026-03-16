@@ -24,7 +24,7 @@ export default function TopicInput({ onStart, disabled }) {
     <div className="flex flex-col items-center gap-4 w-full max-w-2xl mx-auto">
       <form
         onSubmit={handleSubmit}
-        className="w-full flex items-center glass-pill overflow-hidden"
+        className="w-full flex items-center glass-pill overflow-hidden topic-input-form"
         style={{ padding: "6px 6px 6px 20px" }}
       >
         <input

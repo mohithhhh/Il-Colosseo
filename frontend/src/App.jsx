@@ -4,13 +4,19 @@ import TopicInput from "./components/TopicInput";
 import RoundRow from "./components/RoundRow";
 import JudgePanel from "./components/JudgePanel";
 import ReflectionCard from "./components/ReflectionCard";
+import CurveballPanel from "./components/CurveballPanel";
 const BG = "url('/bg.png')";
 const SCRIM_LANDING = "rgba(8, 8, 12, 0.55)";
 const SCRIM_ARENA = "rgba(8, 8, 12, 0.80)";
 
 export default function App() {
-  const { state, start, proceed, reset } = useDebate();
-  const { status, pendingAction, rounds, judge, reflections, warnings, artifactPath, error } = state;
+  const { state, start, proceed, reset, startListening, submitCurveball } = useDebate();
+  const {
+    status, pendingAction, rounds, judge, reflections,
+    warnings, artifactPath,
+    curveball, curveballDraft, awaitingCurveball, isListening,
+    error,
+  } = state;
   const scrollRef = useRef(null);
   const [dismissedWarnings, setDismissedWarnings] = useState([]);
 
@@ -19,13 +25,14 @@ export default function App() {
   const showReflections =
     reflections.PRO.displayText !== "" || reflections.CON.displayText !== "";
   const activeWarnings = warnings.filter((_, i) => !dismissedWarnings.includes(i));
+  const showCurveballPill = curveball && rounds.some((r) => r.round === 3);
 
   // Auto-scroll arena to bottom when new content appears
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [rounds.length, judge.text, reflections.PRO.displayText, reflections.CON.displayText, pendingAction]);
+  }, [rounds.length, judge.text, reflections.PRO.displayText, reflections.CON.displayText, pendingAction, awaitingCurveball, curveball]);
 
   // ── Landing page ──
   if (isIdle) {
@@ -253,7 +260,7 @@ export default function App() {
           )}
 
           {rounds.map((roundData) => (
-            <RoundRow key={roundData.round} roundData={roundData} />
+            <RoundRow key={roundData.round} roundData={roundData} curveball={curveball} />
           ))}
 
           {/* Inter-round loading dots */}
@@ -263,6 +270,16 @@ export default function App() {
                 <div key={i} className="loading-dot" style={{ animationDelay: `${i * 0.25}s` }} />
               ))}
             </div>
+          )}
+
+          {/* Audience curveball input — appears after round 2, before Start Round 3 */}
+          {awaitingCurveball && (
+            <CurveballPanel
+              curveballDraft={curveballDraft}
+              isListening={isListening}
+              onStartListening={startListening}
+              onSubmit={submitCurveball}
+            />
           )}
 
           {/* Round / Judge proceed button */}
@@ -300,7 +317,47 @@ export default function App() {
             </div>
           )}
 
-          {showJudge && <JudgePanel data={judge} />}
+          {/* Curveball confirmation pill — visible during and after round 3 */}
+          {showCurveballPill && (
+            <div className="fade-in" style={{ display: "flex", justifyContent: "center" }}>
+              <div
+                className="glass-pill"
+                style={{
+                  padding: "8px 20px",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: "4px",
+                  maxWidth: "480px",
+                  textAlign: "center",
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: "0.6rem",
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                    color: "rgba(255,255,255,0.28)",
+                    fontWeight: 500,
+                  }}
+                >
+                  Round 3 constraint:
+                </span>
+                <span
+                  style={{
+                    fontStyle: "italic",
+                    fontSize: "0.8rem",
+                    color: "rgba(212,169,106,0.75)",
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {curveball}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {showJudge && <JudgePanel data={judge} curveball={curveball} />}
 
           {/* Artifact saved pill */}
           {artifactPath && (

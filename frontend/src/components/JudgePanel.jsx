@@ -12,7 +12,7 @@ const VERDICT_LABEL = {
   TIE: "Tie",
 };
 
-export default function JudgePanel({ data }) {
+export default function JudgePanel({ data, curveball }) {
   const bodyRef = useRef(null);
 
   useEffect(() => {
@@ -66,6 +66,36 @@ export default function JudgePanel({ data }) {
           </span>
         )}
       </div>
+
+      {/* Audience challenge section */}
+      {curveball && (
+        <div style={{ marginTop: "16px" }}>
+          <div style={{ height: "0.5px", background: "rgba(255,255,255,0.1)", marginBottom: "10px" }} />
+          <span
+            style={{
+              fontSize: "0.6rem",
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color: "rgba(255,255,255,0.28)",
+              fontWeight: 500,
+            }}
+          >
+            On the audience challenge
+          </span>
+          <p
+            style={{
+              marginTop: "8px",
+              marginBottom: 0,
+              fontStyle: "italic",
+              fontSize: "0.82rem",
+              color: "rgba(212,169,106,0.65)",
+              lineHeight: 1.7,
+            }}
+          >
+            "{curveball}"
+          </p>
+        </div>
+      )}
 
       {/* Verdict banner */}
       {data.winner && (

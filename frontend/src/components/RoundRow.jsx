@@ -1,6 +1,6 @@
 import AgentCard from "./AgentCard";
 
-export default function RoundRow({ roundData }) {
+export default function RoundRow({ roundData, curveball }) {
   return (
     <div className="fade-in" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
       {/* Round label with flanking divider lines */}
@@ -21,8 +21,8 @@ export default function RoundRow({ roundData }) {
 
       {/* PRO and CON cards side by side */}
       <div style={{ display: "flex", gap: "16px" }}>
-        <AgentCard agent="PRO" data={roundData.PRO} />
-        <AgentCard agent="CON" data={roundData.CON} />
+        <AgentCard agent="PRO" data={roundData.PRO} round={roundData.round} curveball={curveball} />
+        <AgentCard agent="CON" data={roundData.CON} round={roundData.round} curveball={curveball} />
       </div>
     </div>
   );

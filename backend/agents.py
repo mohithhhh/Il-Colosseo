@@ -27,7 +27,11 @@ async def _generate(prompt: str, system: str, max_tokens: int = MAX_TOKENS):
                 raise
 
 
-def _build_pro_system(research: list[dict]) -> str:
+def _build_pro_system(
+    research: list[dict],
+    wikipedia_anchor: str | None = None,
+    claims: list[dict] | None = None,
+) -> str:
     base = (
         "You are the PRO debater in a formal structured debate. "
         "Argue in favor of the proposition with clarity and conviction. "
@@ -36,10 +40,14 @@ def _build_pro_system(research: list[dict]) -> str:
         "In round 2 and 3, open with one short rebuttal bullet before your 3 points. "
         "Never break character. No preamble, no summary."
     )
-    return base + _research_block(research)
+    return base + _research_block(research, wikipedia_anchor, claims)
 
 
-def _build_con_system(research: list[dict]) -> str:
+def _build_con_system(
+    research: list[dict],
+    wikipedia_anchor: str | None = None,
+    claims: list[dict] | None = None,
+) -> str:
     base = (
         "You are the CON debater in a formal structured debate. "
         "Argue against the proposition with clarity and conviction. "
@@ -48,7 +56,7 @@ def _build_con_system(research: list[dict]) -> str:
         "In round 2 and 3, open with one short rebuttal bullet before your 3 points. "
         "Never break character. No preamble, no summary."
     )
-    return base + _research_block(research)
+    return base + _research_block(research, wikipedia_anchor, claims)
 
 
 def _build_judge_system() -> str:
@@ -63,17 +71,44 @@ def _build_judge_system() -> str:
     )
 
 
-def _research_block(research: list[dict]) -> str:
-    if not research:
-        return ""
-    block = (
-        "\n\nYou have access to the following real-time research. "
-        "Cite at least one source naturally in your argument. "
-        "Do not list sources — weave them in as a debater would.\n\n"
-    )
-    for i, src in enumerate(research[:3], 1):
-        block += f"[SOURCE {i}] {src['title']} — {src['content']}\n"
-    return block
+def _research_block(
+    research: list[dict],
+    wikipedia_anchor: str | None = None,
+    claims: list[dict] | None = None,
+) -> str:
+    block = "\n\n"
+
+    if wikipedia_anchor:
+        block += (
+            "[BACKGROUND — verified Wikipedia summary]\n"
+            f"{wikipedia_anchor}\n\n"
+            "Use this as your ground truth baseline. Do not contradict it without strong evidence.\n\n"
+        )
+
+    if claims:
+        block += "[EXTRACTED CLAIMS — use these as your argument backbone]\n"
+        for i, c in enumerate(claims[:5], 1):
+            block += (
+                f"{i}. {c.get('claim', '')} "
+                f"(Source: {c.get('source_title', '')}, Confidence: {c.get('confidence', '')})\n"
+            )
+        block += "\nCite at least 2 of these claims by name in your argument.\n\n"
+
+    if research:
+        block += (
+            "You have access to the following real-time research. "
+            "Cite at least one source naturally in your argument. "
+            "Do not list sources — weave them in as a debater would.\n\n"
+        )
+        source_num = 1
+        for src in research[:10]:
+            if src.get("is_full_article"):
+                block += f"[FULL ARTICLE — {src['title']}]\n{src['content']}\n\n"
+            else:
+                block += f"[SOURCE {source_num}] {src['title']} — {src['content']}\n"
+                source_num += 1
+
+    return block if block.strip() else ""
 
 
 async def argue(
@@ -84,21 +119,30 @@ async def argue(
     research: list[dict] | None = None,
     agent_instruction: str = "",
     retry_instruction: str = "",
+    curveball: str | None = None,
+    wikipedia_anchor: str | None = None,
+    claims: list[dict] | None = None,
 ) -> str:
     """Generate a debate argument for the given agent."""
     research = research or []
 
     if agent == "PRO":
-        system = _build_pro_system(research)
+        system = _build_pro_system(research, wikipedia_anchor, claims)
         role_label = "PRO debater"
     elif agent == "CON":
-        system = _build_con_system(research)
+        system = _build_con_system(research, wikipedia_anchor, claims)
         role_label = "CON debater"
     else:
         raise ValueError(f"Unknown agent: {agent}")
 
     if agent_instruction:
         system += f" {agent_instruction}"
+    if curveball and round_number == 3:
+        system += (
+            f'\n\nAUDIENCE CHALLENGE (you must address this directly in your argument):\n'
+            f'"{curveball}"\n'
+            f'Do not deflect or ignore this. Name it explicitly and respond to it with evidence.'
+        )
     if retry_instruction:
         system += f" {retry_instruction}"
 
@@ -131,11 +175,18 @@ async def judge(
     history: list[dict],
     research_log: list[dict] | None = None,
     judge_instruction: str = "",
+    curveball: str | None = None,
 ) -> tuple[str, str]:
     """Generate the judge's verdict. Returns (verdict_text, winner_str)."""
     system = _build_judge_system()
     if judge_instruction:
         system += f" {judge_instruction}"
+    if curveball:
+        system += (
+            f'\nThe audience injected this challenge before round 3: "{curveball}"\n'
+            f'In your verdict, explicitly assess whether each agent genuinely addressed it '
+            f'with evidence, or deflected it. Call out the difference by name.'
+        )
 
     context_lines = [
         f"Debate topic: {topic}",

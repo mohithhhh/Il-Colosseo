@@ -35,8 +35,8 @@ async function playAudio(base64, text, agent) {
 const emptyAgent = () => ({ text: "", displayText: "", score: 0, research: null, sources: [] });
 
 const initialState = () => ({
-  status: "idle",       // idle | running | waiting | complete
-  pendingAction: null,  // null | 2 | 3 | "judge"
+  status: "idle",           // idle | running | waiting | complete
+  pendingAction: null,      // null | 2 | 3 | "judge"
   rounds: [],
   judge: { text: "", displayText: "", winner: null },
   reflections: {
@@ -45,6 +45,10 @@ const initialState = () => ({
   },
   warnings: [],
   artifactPath: null,
+  curveball: null,
+  curveballDraft: "",
+  awaitingCurveball: false,
+  isListening: false,
   error: null,
 });
 
@@ -125,6 +129,8 @@ export function useDebate() {
   const historyRef = useRef([]);
   const researchLogRef = useRef([]);
   const topicMetaRef = useRef({});
+  const curveballRef = useRef(null);
+  const recognitionRef = useRef(null);
   const pendingActionRef = useRef(null);
 
   // Process a single parsed SSE event
@@ -142,21 +148,26 @@ export function useDebate() {
       return;
     }
 
+    if (type === "awaiting_curveball") {
+      setState((s) => ({ ...s, awaitingCurveball: true }));
+      return;
+    }
+
     if (type === "researching") {
-      const { round, query, sources } = event;
+      const { round, queries, sources, wikipedia_anchor, claims } = event;
       setState((s) => {
         const exists = s.rounds.some((r) => r.round === round);
         if (exists) {
           return {
             ...s,
             rounds: updateRoundAgent(s.rounds, round, agentKey, {
-              research: { query, sources },
+              research: { queries, sources, wikipedia_anchor, claims },
               sources,
             }),
           };
         }
         const newRound = { round, PRO: emptyAgent(), CON: emptyAgent() };
-        newRound[agentKey] = { ...newRound[agentKey], research: { query, sources }, sources };
+        newRound[agentKey] = { ...newRound[agentKey], research: { queries, sources, wikipedia_anchor, claims }, sources };
         return { ...s, rounds: [...s.rounds, newRound] };
       });
       return;
@@ -270,6 +281,54 @@ export function useDebate() {
     }
   }
 
+  const startListening = useCallback(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch {}
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = "en-US";
+
+    recognition.onresult = (e) => {
+      const transcript = Array.from(e.results).map((r) => r[0].transcript).join("");
+      setState((s) => ({ ...s, curveballDraft: transcript }));
+    };
+    recognition.onend = () => {
+      recognitionRef.current = null;
+      setState((s) => ({ ...s, isListening: false }));
+    };
+    recognition.onerror = () => {
+      recognitionRef.current = null;
+      setState((s) => ({ ...s, isListening: false }));
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    setState((s) => ({ ...s, isListening: true }));
+  }, []);
+
+  const submitCurveball = useCallback((text) => {
+    const trimmed = text.trim().slice(0, 280);
+    if (!trimmed) return;
+    curveballRef.current = trimmed;
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch {}
+      recognitionRef.current = null;
+    }
+    setState((s) => ({
+      ...s,
+      curveball: trimmed,
+      awaitingCurveball: false,
+      curveballDraft: "",
+      isListening: false,
+    }));
+  }, []);
+
   const start = useCallback(async (topic) => {
     if (abortRef.current) abortRef.current.abort();
     const controller = new AbortController();
@@ -281,6 +340,7 @@ export function useDebate() {
     historyRef.current = [];
     researchLogRef.current = [];
     topicMetaRef.current = {};
+    curveballRef.current = null;
     pendingActionRef.current = null;
 
     setState({ ...initialState(), status: "running" });
@@ -288,7 +348,7 @@ export function useDebate() {
     try {
       await streamEndpoint(
         "/debate/round",
-        { topic, round_num: 1, history: [], research_log: [], topic_meta: {} },
+        { topic, round_num: 1, history: [], research_log: [], topic_meta: {}, curveball: null },
         controller.signal,
       );
       const nextAction = ROUNDS > 1 ? 2 : "judge";
@@ -322,6 +382,7 @@ export function useDebate() {
             history: historyRef.current,
             research_log: researchLogRef.current,
             topic_meta: topicMetaRef.current,
+            curveball: curveballRef.current,
           },
           controller.signal,
         );
@@ -335,6 +396,7 @@ export function useDebate() {
             history: historyRef.current,
             research_log: researchLogRef.current,
             topic_meta: topicMetaRef.current,
+            curveball: action === 3 ? curveballRef.current : null,
           },
           controller.signal,
         );
@@ -351,13 +413,18 @@ export function useDebate() {
   const reset = useCallback(() => {
     if (abortRef.current) abortRef.current.abort();
     window.speechSynthesis?.cancel();
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch {}
+      recognitionRef.current = null;
+    }
     pendingActionRef.current = null;
     topicRef.current = "";
     historyRef.current = [];
     researchLogRef.current = [];
     topicMetaRef.current = {};
+    curveballRef.current = null;
     setState(initialState());
   }, []);
 
-  return { state, start, proceed, reset };
+  return { state, start, proceed, reset, startListening, submitCurveball };
 }

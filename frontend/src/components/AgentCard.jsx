@@ -3,7 +3,7 @@ import ResearchPanel from "./ResearchPanel";
 
 const DISPLAY_NAME = { PRO: "Maximus", CON: "Nexus" };
 
-export default function AgentCard({ agent, data }) {
+export default function AgentCard({ agent, data, round, curveball }) {
   const bodyRef = useRef(null);
   const [popScore, setPopScore] = useState(false);
   const [showSources, setShowSources] = useState(false);
@@ -41,6 +41,24 @@ export default function AgentCard({ agent, data }) {
           {label}
         </span>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          {curveball && round === 3 && (
+            <div
+              style={{
+                padding: "2px 8px",
+                borderRadius: "9999px",
+                background: "rgba(212,169,106,0.1)",
+                border: "1px solid rgba(212,169,106,0.3)",
+                fontSize: "0.56rem",
+                fontWeight: 500,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                color: "rgba(212,169,106,0.85)",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Addressing challenge
+            </div>
+          )}
           {hasSources && (
             <button
               onClick={() => setShowSources((s) => !s)}

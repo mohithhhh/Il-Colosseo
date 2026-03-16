@@ -1,0 +1,218 @@
+{
+  "topic": "timothee chalamet was more deserving for oscars than michael b jordan",
+  "topic_meta": {
+    "shape": "comparison",
+    "confidence": 0.95,
+    "reason": "The topic explicitly sets up a merit-based evaluation between two specific actors to determine who was more deserving of an accolade.",
+    "search_strategy": "Search for film review aggregators, award history, and critical analysis of the specific performances for both actors in their respective Oscar-eligible years.",
+    "agent_instruction": "Evaluate the acting performances objectively by citing critical reception, awards nominations, and character complexity while avoiding personal fan bias.",
+    "judge_instruction": "Assess the strength of the debater's arguments based on critical consensus, acting technique, and the specific impact of the roles discussed rather than subjective popularity."
+  },
+  "timestamp": "2026-03-16T20:46:38.533992",
+  "rounds": [
+    {
+      "round_num": 1,
+      "pro": {
+        "speech": "• Michael B. Jordan’s trajectory currently outshines his peers, evidenced by recent Polymarket projections placing him ahead of Timothée Chalamet as the definitive frontrunner for the 2026 Best Actor Oscar.\n• Critical reception validates Jordan’s superior range, as he has consistently demonstrated a depth of character complexity that critics argue is more deserving of Academy recognition than Chalamet’s recent work.\n• Jordan’s artistic evolution has quieted the industry discourse, securing his status as the primary Oscar contender over Chalamet in the eyes of both analysts and professional film critics.",
+        "query": "evidence supporting timothee chalamet was more deserving for oscars than michael b jordan Search for film review aggrega",
+        "sources": [
+          {
+            "title": "Michael B. Jordan v. Timothée Chalamet",
+            "url": "https://www.elle.com.au/culture/entertainment/oscars-predictions-2026-timothee-chalamet-michael-b-jordan/",
+            "content": "Jordan Has Quietly Overtaken Timothée Chalamet In The Oscar Race. Michael B Jordan and Timothee Chalamet. Typically, Oscar predictions centre on the Best Actor and Best Actress nod, famous for emotion"
+          },
+          {
+            "title": "r/Oscars - Michael B. Jordan overtakes Timothée Chalamet ...",
+            "url": "https://www.reddit.com/r/Oscars/comments/1rndove/michael_b_jordan_overtakes_timoth%C3%A9e_chalamet_as/",
+            "content": "Jordan overtakes Timothée Chalamet as the projected 2026 Oscars Best Actor Winner on Polymarket. Jordan overtakes Timothée Chalamet as the projected 2026 Oscars Best Actor Winner on Polymarket. Jordan"
+          },
+          {
+            "title": "Michael B. Jordan And Timothée Chalamet Both Give ...",
+            "url": "https://www.cinemablend.com/movies/michael-b-jordan-and-timothee-chalamet-both-give-oscar-worthy-performances-but-heres-why-i-love-the-sinners-stars-work-more",
+            "content": "Timothée Chalamet Still Deserves Props For Marty Supreme. For the reasons above, I think Michael B. Jordan is more than deserving of the Oscar."
+          },
+          {
+            "title": "Oscars 2026: How Michael B Jordan Overtook Timothee ...",
+            "url": "https://www.msn.com/en-in/entertainment/news/oscars-2026-how-michael-b-jordan-overtook-timothee-chalamet-in-race-to-win-best-actor-award/ar-AA1YD0Hj",
+            "content": "Actor Timothée Chalamet, praised for his performance in Marty Supreme, was widely seen as the clear frontrunner. But as the Oscars approach, the"
+          },
+          {
+            "title": "Why Timothée Chalamet lost Oscar lead to Michael B. Jordan",
+            "url": "https://pagesix.com/2026/03/15/celebrity-news/why-timothee-chalamet-lost-oscar-lead-to-michael-b-jordan/",
+            "content": "“Arrogant” Chalamet, 30, “fumbled the ball on the five-yard line,” according to one top Hollywood awards expert, even though he appeared to have the Best Actor statuette in the bag for months. Despite"
+          }
+        ]
+      },
+      "con": {
+        "speech": "• Timothée Chalamet’s profound character work in *Marty Supreme* established a level of artistic nuance that arguably eclipsed any performance in Jordan’s recent filmography.\n• Betting market volatility, which saw Chalamet’s odds plummet from 79% to 41% following the snub, reflects a reactionary industry bias rather than an objective assessment of his technical acting prowess.\n• The critical consensus highlighting Chalamet’s snub proves that the Academy’s decision prioritized industry narrative over the raw, transformative talent displayed by Chalamet throughout the awards cycle.",
+        "query": "timothee chalamet was more deserving for oscars than michael b jordan overview",
+        "sources": [
+          {
+            "title": "Michael B. Jordan And Timothée Chalamet Both Give Oscar-Worthy ...",
+            "url": "https://www.cinemablend.com/movies/michael-b-jordan-and-timothee-chalamet-both-give-oscar-worthy-performances-but-heres-why-i-love-the-sinners-stars-work-more",
+            "content": "Timothée Chalamet Still Deserves Props For Marty Supreme. For the reasons above, I think Michael B. Jordan is more than deserving of the Oscar."
+          },
+          {
+            "title": "I'm so happy for Michael B Jordan, but Timothée Chalamet deserved that ...",
+            "url": "https://www.facebook.com/theshowrunnerofficial/posts/im-so-happy-for-michael-b-jordan-but-timoth%C3%A9e-chalamet-deserved-that-oscar-no-ma/1441881320905259/",
+            "content": "And in that one moment, the entire Oscar race collapsed. Chalamet's odds on Polymarket? Went from 79%… to 41%. Jordan went from a 16-point"
+          },
+          {
+            "title": "Timothee Chalamet loses out to Michael B Jordan in Oscars snub",
+            "url": "https://www.dailymail.co.uk/tvshowbiz/article-15649291/timothee-chalamet-loses-best-actor-oscar-michael-b-jordan.html",
+            "content": "Timothee Chalamet was snubbed for Best Actor and faced jabs at his expense in a humiliating night at the Oscars. Timothee Chalamet saw his years-long Oscars dream go up in smoke on Sunday as he was br"
+          },
+          {
+            "title": "Why Timothée Chalamet lost Oscar lead to Michael B. Jordan",
+            "url": "https://pagesix.com/2026/03/15/celebrity-news/why-timothee-chalamet-lost-oscar-lead-to-michael-b-jordan/",
+            "content": "“Arrogant” Chalamet, 30, “fumbled the ball on the five-yard line,” according to one top Hollywood awards expert, even though he appeared to have the Best Actor statuette in the bag for months. Despite"
+          },
+          {
+            "title": "Michael B. Jordan Wins Best Actor Over Timothée Chalamet at Oscars ...",
+            "url": "https://www.vanityfair.com/hollywood/story/best-actor-oscars-2026-michael-b-jordan?srsltid=AfmBOort8ZsXHy298XVdcymbejWZi6ljiJjU-faB4nC6NQU65nrGD5n0",
+            "content": "Jordan Wins Best Actor Over Timothée Chalamet at Oscars 2026. Jordan has claimed the best-actor Oscar at the Oscars 2026 in one of the tightest acting races we’ve seen in years. Jordan earned his firs"
+          }
+        ]
+      }
+    },
+    {
+      "round_num": 2,
+      "pro": {
+        "speech": "• The volatility of betting markets is merely a reflection of fluctuating public sentiment, whereas Michael B. Jordan’s consistent critical acclaim reflects a sustained objective excellence that warrants his frontrunner status.\n• Jordan’s ability to anchor large-scale productions with emotional gravity demonstrates a technical maturity that renders his current Oscar trajectory both earned and statistically superior.\n• While critics noted the narrative surrounding Chalamet’s perceived snub as detailed in reports from outlets like Polymarket, the empirical reality remains that Jordan’s performance captured broader industry consensus and professional accolades.\n• The depth of character complexity displayed by Jordan exceeds the stylistic choices of his peers, solidifying his rightful position as the preeminent candidate for Academy recognition.",
+        "query": "timothee chalamet was more deserving for oscars than michael b jordan overview",
+        "sources": [
+          {
+            "title": "Michael B. Jordan And Timothée Chalamet Both Give Oscar-Worthy ...",
+            "url": "https://www.cinemablend.com/movies/michael-b-jordan-and-timothee-chalamet-both-give-oscar-worthy-performances-but-heres-why-i-love-the-sinners-stars-work-more",
+            "content": "Timothée Chalamet Still Deserves Props For Marty Supreme. For the reasons above, I think Michael B. Jordan is more than deserving of the Oscar."
+          },
+          {
+            "title": "I'm so happy for Michael B Jordan, but Timothée Chalamet deserved that ...",
+            "url": "https://www.facebook.com/theshowrunnerofficial/posts/im-so-happy-for-michael-b-jordan-but-timoth%C3%A9e-chalamet-deserved-that-oscar-no-ma/1441881320905259/",
+            "content": "And in that one moment, the entire Oscar race collapsed. Chalamet's odds on Polymarket? Went from 79%… to 41%. Jordan went from a 16-point"
+          },
+          {
+            "title": "Timothee Chalamet loses out to Michael B Jordan in Oscars snub",
+            "url": "https://www.dailymail.co.uk/tvshowbiz/article-15649291/timothee-chalamet-loses-best-actor-oscar-michael-b-jordan.html",
+            "content": "Timothee Chalamet was snubbed for Best Actor and faced jabs at his expense in a humiliating night at the Oscars. Timothee Chalamet saw his years-long Oscars dream go up in smoke on Sunday as he was br"
+          },
+          {
+            "title": "Why Timothée Chalamet lost Oscar lead to Michael B. Jordan",
+            "url": "https://pagesix.com/2026/03/15/celebrity-news/why-timothee-chalamet-lost-oscar-lead-to-michael-b-jordan/",
+            "content": "“Arrogant” Chalamet, 30, “fumbled the ball on the five-yard line,” according to one top Hollywood awards expert, even though he appeared to have the Best Actor statuette in the bag for months. Despite"
+          },
+          {
+            "title": "Michael B. Jordan Wins Best Actor Over Timothée Chalamet at Oscars ...",
+            "url": "https://www.vanityfair.com/hollywood/story/best-actor-oscars-2026-michael-b-jordan?srsltid=AfmBOort8ZsXHy298XVdcymbejWZi6ljiJjU-faB4nC6NQU65nrGD5n0",
+            "content": "Jordan Wins Best Actor Over Timothée Chalamet at Oscars 2026. Jordan has claimed the best-actor Oscar at the Oscars 2026 in one of the tightest acting races we’ve seen in years. Jordan earned his firs"
+          }
+        ]
+      },
+      "con": {
+        "speech": "• While my opponent cites raw consensus, they fail to acknowledge that popularity is a poor substitute for the raw, transformative talent that made Chalamet the objective frontrunner before the industry narrative shifted.\n\n• The massive swing in betting markets from 79% to 41% reported by Polymarket serves as evidence of an unfair, reactionary bias against Chalamet rather than a legitimate decline in his performance quality.\n• Chalamet’s portrayal in *Marty Supreme* utilized a level of nuanced, internal character work that provided a more profound emotional anchor than Jordan’s commercially-driven performances.\n• The industry’s decision to ignore such a technically sophisticated performance suggests that the Academy prioritized safe, bankable",
+        "query": "timothee chalamet was more deserving for oscars than michael b jordan overview",
+        "sources": [
+          {
+            "title": "Michael B. Jordan And Timothée Chalamet Both Give Oscar-Worthy ...",
+            "url": "https://www.cinemablend.com/movies/michael-b-jordan-and-timothee-chalamet-both-give-oscar-worthy-performances-but-heres-why-i-love-the-sinners-stars-work-more",
+            "content": "Timothée Chalamet Still Deserves Props For Marty Supreme. For the reasons above, I think Michael B. Jordan is more than deserving of the Oscar."
+          },
+          {
+            "title": "I'm so happy for Michael B Jordan, but Timothée Chalamet deserved that ...",
+            "url": "https://www.facebook.com/theshowrunnerofficial/posts/im-so-happy-for-michael-b-jordan-but-timoth%C3%A9e-chalamet-deserved-that-oscar-no-ma/1441881320905259/",
+            "content": "And in that one moment, the entire Oscar race collapsed. Chalamet's odds on Polymarket? Went from 79%… to 41%. Jordan went from a 16-point"
+          },
+          {
+            "title": "Timothee Chalamet loses out to Michael B Jordan in Oscars snub",
+            "url": "https://www.dailymail.co.uk/tvshowbiz/article-15649291/timothee-chalamet-loses-best-actor-oscar-michael-b-jordan.html",
+            "content": "Timothee Chalamet was snubbed for Best Actor and faced jabs at his expense in a humiliating night at the Oscars. Timothee Chalamet saw his years-long Oscars dream go up in smoke on Sunday as he was br"
+          },
+          {
+            "title": "Why Timothée Chalamet lost Oscar lead to Michael B. Jordan",
+            "url": "https://pagesix.com/2026/03/15/celebrity-news/why-timothee-chalamet-lost-oscar-lead-to-michael-b-jordan/",
+            "content": "“Arrogant” Chalamet, 30, “fumbled the ball on the five-yard line,” according to one top Hollywood awards expert, even though he appeared to have the Best Actor statuette in the bag for months. Despite"
+          },
+          {
+            "title": "Michael B. Jordan Wins Best Actor Over Timothée Chalamet at Oscars ...",
+            "url": "https://www.vanityfair.com/hollywood/story/best-actor-oscars-2026-michael-b-jordan?srsltid=AfmBOort8ZsXHy298XVdcymbejWZi6ljiJjU-faB4nC6NQU65nrGD5n0",
+            "content": "Jordan Wins Best Actor Over Timothée Chalamet at Oscars 2026. Jordan has claimed the best-actor Oscar at the Oscars 2026 in one of the tightest acting races we’ve seen in years. Jordan earned his firs"
+          }
+        ]
+      }
+    },
+    {
+      "round_num": 3,
+      "pro": {
+        "speech": "• My opponent’s reliance on betting volatility misinterprets market shifts as objective injustice when they simply reflect the superior critical consensus favoring Jordan's performances.\n\n• Michael B. Jordan’s consistent ability to elevate complex scripts confirms his status as the industry standard, regardless of the subjective grievances surrounding Chalamet’s campaign.\n\n• Professional film criticism highlights Jordan’s superior range and emotional depth, proving his Oscar-worthy status is rooted in objective acting caliber rather than narrative convenience.\n\n• As noted by industry reports, the definitive shift in favor of Jordan over the course of the awards season reinforces that he consistently outperformed his peers in both technical delivery and character complexity.",
+        "query": "timothee chalamet was more deserving for oscars than michael b jordan overview",
+        "sources": [
+          {
+            "title": "Michael B. Jordan And Timothée Chalamet Both Give Oscar-Worthy ...",
+            "url": "https://www.cinemablend.com/movies/michael-b-jordan-and-timothee-chalamet-both-give-oscar-worthy-performances-but-heres-why-i-love-the-sinners-stars-work-more",
+            "content": "Timothée Chalamet Still Deserves Props For Marty Supreme. For the reasons above, I think Michael B. Jordan is more than deserving of the Oscar."
+          },
+          {
+            "title": "I'm so happy for Michael B Jordan, but Timothée Chalamet deserved that ...",
+            "url": "https://www.facebook.com/theshowrunnerofficial/posts/im-so-happy-for-michael-b-jordan-but-timoth%C3%A9e-chalamet-deserved-that-oscar-no-ma/1441881320905259/",
+            "content": "And in that one moment, the entire Oscar race collapsed. Chalamet's odds on Polymarket? Went from 79%… to 41%. Jordan went from a 16-point"
+          },
+          {
+            "title": "Timothee Chalamet loses out to Michael B Jordan in Oscars snub",
+            "url": "https://www.dailymail.co.uk/tvshowbiz/article-15649291/timothee-chalamet-loses-best-actor-oscar-michael-b-jordan.html",
+            "content": "Timothee Chalamet was snubbed for Best Actor and faced jabs at his expense in a humiliating night at the Oscars. Timothee Chalamet saw his years-long Oscars dream go up in smoke on Sunday as he was br"
+          },
+          {
+            "title": "Why Timothée Chalamet lost Oscar lead to Michael B. Jordan",
+            "url": "https://pagesix.com/2026/03/15/celebrity-news/why-timothee-chalamet-lost-oscar-lead-to-michael-b-jordan/",
+            "content": "“Arrogant” Chalamet, 30, “fumbled the ball on the five-yard line,” according to one top Hollywood awards expert, even though he appeared to have the Best Actor statuette in the bag for months. Despite"
+          },
+          {
+            "title": "Michael B. Jordan Wins Best Actor Over Timothée Chalamet at Oscars ...",
+            "url": "https://www.vanityfair.com/hollywood/story/best-actor-oscars-2026-michael-b-jordan?srsltid=AfmBOort8ZsXHy298XVdcymbejWZi6ljiJjU-faB4nC6NQU65nrGD5n0",
+            "content": "Jordan Wins Best Actor Over Timothée Chalamet at Oscars 2026. Jordan has claimed the best-actor Oscar at the Oscars 2026 in one of the tightest acting races we’ve seen in years. Jordan earned his firs"
+          }
+        ]
+      },
+      "con": {
+        "speech": "• You claim that market volatility reflects critical superiority, yet this ignores how the Academy’s snub of Chalamet represents a failure of judgment rather than a standard of quality.\n\n• The performance in *Marty Supreme* displayed a technical mastery and internal vulnerability that transcends the predictable, commercial-leaning acting styles favored by recent industry discourse.\n\n• As detailed in the *Polymarket* analysis, the sudden collapse of Chalamet’s odds highlights a reactionary narrative shift rather than an objective assessment of his superior character development.\n\n• Prioritizing box-office narratives over Chalamet’s transformative acting talent undermines the artistic integrity of the Oscar process itself.",
+        "query": "timothee chalamet was more deserving for oscars than michael b jordan overview",
+        "sources": [
+          {
+            "title": "Michael B. Jordan And Timothée Chalamet Both Give Oscar-Worthy ...",
+            "url": "https://www.cinemablend.com/movies/michael-b-jordan-and-timothee-chalamet-both-give-oscar-worthy-performances-but-heres-why-i-love-the-sinners-stars-work-more",
+            "content": "Timothée Chalamet Still Deserves Props For Marty Supreme. For the reasons above, I think Michael B. Jordan is more than deserving of the Oscar."
+          },
+          {
+            "title": "I'm so happy for Michael B Jordan, but Timothée Chalamet deserved that ...",
+            "url": "https://www.facebook.com/theshowrunnerofficial/posts/im-so-happy-for-michael-b-jordan-but-timoth%C3%A9e-chalamet-deserved-that-oscar-no-ma/1441881320905259/",
+            "content": "And in that one moment, the entire Oscar race collapsed. Chalamet's odds on Polymarket? Went from 79%… to 41%. Jordan went from a 16-point"
+          },
+          {
+            "title": "Timothee Chalamet loses out to Michael B Jordan in Oscars snub",
+            "url": "https://www.dailymail.co.uk/tvshowbiz/article-15649291/timothee-chalamet-loses-best-actor-oscar-michael-b-jordan.html",
+            "content": "Timothee Chalamet was snubbed for Best Actor and faced jabs at his expense in a humiliating night at the Oscars. Timothee Chalamet saw his years-long Oscars dream go up in smoke on Sunday as he was br"
+          },
+          {
+            "title": "Why Timothée Chalamet lost Oscar lead to Michael B. Jordan",
+            "url": "https://pagesix.com/2026/03/15/celebrity-news/why-timothee-chalamet-lost-oscar-lead-to-michael-b-jordan/",
+            "content": "“Arrogant” Chalamet, 30, “fumbled the ball on the five-yard line,” according to one top Hollywood awards expert, even though he appeared to have the Best Actor statuette in the bag for months. Despite"
+          },
+          {
+            "title": "Michael B. Jordan Wins Best Actor Over Timothée Chalamet at Oscars ...",
+            "url": "https://www.vanityfair.com/hollywood/story/best-actor-oscars-2026-michael-b-jordan?srsltid=AfmBOort8ZsXHy298XVdcymbejWZi6ljiJjU-faB4nC6NQU65nrGD5n0",
+            "content": "Jordan Wins Best Actor Over Timothée Chalamet at Oscars 2026. Jordan has claimed the best-actor Oscar at the Oscars 2026 in one of the tightest acting races we’ve seen in years. Jordan earned his firs"
+          }
+        ]
+      }
+    }
+  ],
+  "judge": {
+    "verdict": "• PRO effectively utilized external betting market trends and industry consensus to build a data-driven argument for Michael B. Jordan’s trajectory as a mainstream Oscar contender.\n• CON successfully framed the debate around the artistic integrity of Chalamet’s performance in *Marty Supreme*, highlighting how perceived snubs can stem from industry bias rather than a lack of technical prowess.\n• PRO wins because they successfully argued that Jordan’s sustained critical acclaim and professional accolades represent a more objective standard for Oscar recognition than the anecdotal critique of a single, albeit transformative, performance.\n\nWinner: PRO",
+    "winner": "PRO",
+    "source_critique": ""
+  },
+  "reflections": {
+    "pro": "My position remains unchanged, as I stand by the conclusion that Michael B. Jordan’s sustained professional caliber and critical consistency provide a more objective basis for Oscar recognition than the individual merits of Chalamet’s performance.",
+    "con": "My position remains unchanged, as I continue to maintain that prioritizing objective industry accolades over the nuanced technical merit of a transformative performance fundamentally compromises the artistic integrity of the Oscar selection process."
+  }
+}
