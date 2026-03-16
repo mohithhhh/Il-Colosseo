@@ -200,8 +200,9 @@ async def judge(
         context_lines.append("")
         context_lines.append("Research conducted by each agent:")
         for entry in research_log:
+            queries = entry.get("queries") or [entry.get("query", "")]
             context_lines.append(
-                f"  {entry['agent']} (Round {entry['round']}) searched: \"{entry['query']}\""
+                f"  {entry['agent']} (Round {entry['round']}) searched: \"{'; '.join(queries)}\""
             )
             for i, src in enumerate(entry.get("sources", [])[:3], 1):
                 context_lines.append(f"    Source {i}: {src['title']} — {src['content'][:100]}")

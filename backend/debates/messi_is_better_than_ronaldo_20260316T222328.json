@@ -1,0 +1,692 @@
+{
+  "topic": "Messi is better than ronaldo",
+  "curveball": "I love Messi by the way",
+  "topic_meta": {
+    "shape": "comparison",
+    "confidence": 1,
+    "reason": "The topic explicitly sets up a head-to-head evaluation between two specific, widely documented athletes.",
+    "search_strategy": "Search for statistical career comparisons, major trophy tallies, and expert/peer analysis of both players' peak performance periods.",
+    "agent_instruction": "Structure your argument by contrasting specific career metrics, playing styles, and achievements rather than using vague subjective claims.",
+    "judge_instruction": "Evaluate the debaters based on their ability to utilize verifiable statistical evidence and contextualize the specific strengths of each player's unique skill set.",
+    "wikipedia_anchor": null
+  },
+  "timestamp": "2026-03-16T22:23:28.328708",
+  "rounds": [
+    {
+      "round_num": 1,
+      "pro": {
+        "speech": "• Lionel Messi maintains a superior goals-per-game ratio across his career compared to Cristiano Ronaldo, as established in the *Messi vs Ronaldo: All-Time Stats Comparison*.\n• Beyond mere finishing, Messi has provided significantly more career assists than Ronaldo, demonstrating a creative playmaking influence that distinguishes him as the more complete attacking force.\n• Cementing his international supremacy, Messi was awarded the Golden Ball as the tournament's best player during Argentina's 2022 World Cup victory, a triumph where he notably scored twice in the final to showcase his elite leadership under pressure.",
+        "queries": [
+          "Lionel Messi vs Cristiano Ronaldo advanced career statistics per 90 minutes analysis",
+          "comparative breakdown of total career trophies and individual awards Messi vs Ronaldo",
+          "expert analysis on peak performance metrics and impact on game play Messi vs Ronaldo"
+        ],
+        "sources": [
+          {
+            "title": "Football 90 Minutes | Lionel Messi vs Cristiano Ronaldo: A Comparative ...",
+            "url": "https://www.instagram.com/p/DUdZgkhjNNx/",
+            "content": "Lionel Messi vs Cristiano Ronaldo: A Comparative Analysis of Their Career Statistics. Will they reach the milestone of 1000 career goals?"
+          },
+          {
+            "title": "Lionel Messi Vs Cristiano Ronaldo Career Stats",
+            "url": "https://www.statmuse.com/fc/ask/lionel-messi-vs-cristiano-ronaldo-career-stats?l=eu5",
+            "content": "| 14 | Le Havre Le Havre | 26 | 6 | 9 | 11 | -12 | 27 |\n| 15 |  | 26 | 7 | 6 | 13 | -16 | 27 |\n| 16 |  | 26 | 4 | 7 | 15 |  |  |\n| 17 |  | 25 | 4 | 5 | 16 |  | 17 |\n| 18 |  | 26 | 3 | 4 | 19 |  | 13 | [...] | 14 | Torino Torino | 29 | 9 | 6 | 14 | -18 | 33 |\n| 15 | Cagliari Cagliari | 29 | 7 | 9 | 13 | -10 | 30 |\n| 16 | Lecce Lecce | 29 | 7 | 6 | 16 | -18 | 27 |\n| 17 | Fiorentina Fiorentina | 28 |"
+          },
+          {
+            "title": "Lionel Messi vs. Cristiano Ronaldo: Full Breakdown of 2025 Stats",
+            "url": "https://www.si.com/soccer/lionel-messi-vs-cristiano-ronaldo-full-breakdown-2025-stats",
+            "content": ".2%2C21.7%2C0%2C19.7%2C0%2C15.3v-0.9C0%2C9.3%2C5.5%2C7%2C12.9%2C7%0A%09c10.2%2C0%2C12.8%2C2.6%2C12.8%2C7.4v1.8h-11v-2.9c0-0.6-0.4-1.1-1.2-1.1c-0.6%2C0-1.2%2C0.4-1.2%2C1.1v0.9c0%2C1.5%2C0.9%2C2%2C3.3%2C2.5%0A%09c8%2C1.6%2C10.5%2C3.3%2C10.5%2C7.5V25.5z%22%2F%3E%0A%3C%2Fsvg%3E%0A) [...] .2%2C21.7%2C0%2C19.7%2C0%2C15.3v-0.9C0%2C9.3%2C5.5%2C7%2C12.9%2C7%0A%09c10.2%2C0%2C12.8%2C2.6%2C12.8%2C7.4v1.8h-11v"
+          },
+          {
+            "title": "Messi vs Ronaldo - All Time Career Goals and Stats",
+            "url": "https://www.messivsronaldo.app/",
+            "content": "At International level, Ronaldo is the all time top scorer with an unbelievable 143 goals, whilst Messi is the highest scoring South American of all time with 115 goals.\n\n## Who's better at international level?\n\nBoth players can claim to have enjoyed fantastic careers at international level - their numbers aren't quite as other-wordly as what they produce for their club sides, but they are still e"
+          },
+          {
+            "title": "Messi vs Ronaldo",
+            "url": "https://michelacosta.com/messi-vs-ronaldo/",
+            "content": "Lionel Messi vs Cristiano Ronaldo\n\nPHP: 8.2.30 | MySQL: 8.0.43\n\n# Messi vs Ronaldo\n\nA complete overview of the professional careers of Messi and Cristiano Ronaldo, based on more than 15 years of analysis and continuous monitoring. A global vision of their evolution, impact, and performance from their debut to the present day.\n\n| Totals | Per game |\n --- |\n| Team | Games | Goals | Assists | Goals |"
+          },
+          {
+            "title": "Messi vs Ronaldo: All-Time Stats Comparison",
+            "url": "https://www.scribd.com/document/691481421/Messi-vs-Ronaldo-All-Time-Career-Goals-and-Stats",
+            "content": "# Messi vs Ronaldo: Career Stats Comparison\n\nThe document compares career statistics between Lionel Messi and Cristiano Ronaldo across multiple categories. It finds that the two players are very close in terms of goalscoring, with Messi having a slightly better goals per game ratio but Ronaldo having more total career goals. For assists, Messi has provided significantly more over his career than R"
+          },
+          {
+            "title": "Lionel Messi vs. Cristiano Ronaldo: all-time goals, career stats ...",
+            "url": "https://theweek.com/sport/football/955312/lionel-messi-vs-cristiano-ronaldo-rivalry-all-time-goals-career-stats",
+            "content": "With two goals in the epic final against France, and a penalty in the shoot-out, Messi inspired Argentina to an unforgettable victory at the Lusail Stadium. He was also awarded the Golden Ball for the tournament's best player and only missed out on the Golden Boot after Kylian Mbappé's brilliant hat-trick saw the French striker finish with eight goals. Messi scored seven goals and also provided th"
+          },
+          {
+            "title": "Player comparison Cristiano Ronaldo / Lionel Messi | Transfermarkt",
+            "url": "https://www.transfermarkt.us/vergleich/spielervergleich/statistik/def/spieler/8198&28003",
+            "content": "| FIFA Club World Cup | Club World Cup | 9 | 6 | 1 | 131 | 787 |\n| MLS Cup Playoffs | MLS Cup Playoffs | 9 | 7 | 8 | 116 | 810 |\n| UEFA Super Cup | UEFA Super Cup | 4 | 3 | 3 | 140 | 420 |\n| Coupe de France | Coupe de France | 2  -  180 |\n| US Open Cup | US Open Cup | 1  2  120 |\n| Trophée des Champions | Trophée des Champions | 1 | 1  90 | 90 | [...] |  |  |  |\n --- [...] | Italy Cup | Italy Cup "
+          },
+          {
+            "title": "Player comparison Cristiano Ronaldo / Lionel Messi",
+            "url": "https://www.transfermarkt.com/vergleich/spielervergleich/statistik/def/spieler/8198&28003",
+            "content": "|  |  |  |\n --- [...] | Competition | | wettbewerb |  |  |  |  |  |\n ---  ---  ---  --- |\n|  |  |  |  |  |  |  |  |\n ---  ---  ---  --- |\n| Total : | |  | 967 | 790 | 383 | 101 | 79.530 |\n| LaLiga | LaLiga | 520 | 474 | 216 | 89 | 42.148 |\n| UEFA Champions League | UEFA Champions League | 163 | 129 | 45 | 105 | 13.577 |\n| Copa del Rey | Copa del Rey | 80 | 56 | 36 | 116 | 6.512 |\n| Ligue 1 | Ligue"
+          },
+          {
+            "title": "All Time Club Career Stats",
+            "url": "https://www.messivsronaldo.app/club-stats/",
+            "content": "Lionel Messi Cristiano Ronaldo\n\n### Goal Contributions\n\n#### Goals\n\n#### Assists\n\n#### Appearances\n\n#### Minutes Played\n\n#### Goals Per Game\n\n#### Minutes Per Goal\n\n#### Mins Per Goal/Assist\n\n#### Hat-tricks\n\n### Goals By Type\n\n#### Penalties\n\n#### Free Kick Goals\n\n#### Outside the Box\n\n#### Inside the Box\n\n#### Left Foot\n\n#### Right Foot\n\n#### Headers\n\n#### Other Body Part\n\n### Performance Stats\n"
+          },
+          {
+            "title": "Cristiano Ronaldo vs Lionel Messi – Trophy Competition Here's a clear ...",
+            "url": "https://www.facebook.com/100093090675886/posts/-cristiano-ronaldo-vs-lionel-messi-trophy-competitionheres-a-clear-comparison-of/838133582632990/",
+            "content": "... Individual awards edge: Messi Overall Trophy Count (Approx.) Lionel Messi – 44+ major trophies Cristiano Ronaldo – 35+ major trophies"
+          },
+          {
+            "title": "Messi–Ronaldo rivalry",
+            "url": "https://en.wikipedia.org/wiki/Messi%E2%80%93Ronaldo_rivalry",
+            "content": "The pair's goal-scoring prowess resulted in a number of individual top scorer accolades. Messi won eight Pichichi trophies and six European Golden Shoe awards (2010, 2012, 2013, 2017, 2018 and 2019). Ronaldo won the European Golden Shoe award on four occasions (2008, 2011, 2014 and 2015) and remains the only footballer with top-flight top scorer awards in England (2008), Spain (2011, 2014 and 2015"
+          },
+          {
+            "title": "Individual awards won by Messi vs Ronaldo",
+            "url": "https://michelacosta.com/messi-vs-ronaldo/awards/",
+            "content": "| 1. FIFA U-20 World Cup Best Player (2005) 2. EFE Award – Best ibero-american player in La Liga (2007) 3. FIFA Club World Cup Golden Ball (2009) 4. EFE Award – Best ibero-american player in La Liga (2009) 5. La Liga MVP (2009) 6. Alfredo Di Stéfano Trophy – Best player in La Liga (2009) 7. EFE Award – Best ibero-american player in La Liga (2010) 8. La Liga MVP (2010) 9. Alfredo Di Stéfano Trophy "
+          },
+          {
+            "title": "Cristiano Ronaldo vs. Lionel Messi: Career trophies, goals, stats and ...",
+            "url": "https://www.sportingnews.com/us/soccer/news/cristiano-ronaldo-vs-messi-goals-stats-trophies-awards-career/uz3gqlzlkl6uwvhuwwjxif4d",
+            "content": "The nature of the trophies they've won belies the nature of the teams on which they've played. Barcelona were dominant domestically for a significant period, giving Messi the edge in domestic honors, while Real Madrid regularly lifted the Champions League during Cristiano's time at the club.\n\nSince both players completed their latest club moves, both have secured trophies. Messi led Inter Miami to"
+          },
+          {
+            "title": "Individual Awards - Messi vs Ronaldo All Awards and Achievements",
+            "url": "https://www.messivsronaldo.app/individual-awards/",
+            "content": "2013/14\n\n#### Ligue 1 Best Foreign Player\n\n1\n\n2022/23\n\n-\n\n#### Trofeo Alfredo Di Stefano (La Liga Best Player by Marca)\n\n7\n\n2018/192017/182016/172014/152010/112009/102008/09\n\n4\n\n2015/162013/142012/132011/12\n\n#### Mundo Deportivo La Liga MVP (from 17/18)\n\n3\n\n2019/202018/192017/18\n\n0\n\n#### Serie A Footballer of the Year (AIC)\n\n-\n\n2\n\n20202019\n\n#### Serie A Best Forward (AIC)\n\n-\n\n2\n\n20202019\n\n#### Ser"
+          }
+        ],
+        "wikipedia_anchor": null,
+        "claims": [
+          {
+            "claim": "Lionel Messi maintains a superior goals-per-game ratio across his career compared to Cristiano Ronaldo.",
+            "source_title": "Messi vs Ronaldo: All-Time Stats Comparison",
+            "confidence": "high"
+          },
+          {
+            "claim": "Lionel Messi has provided significantly more career assists than Cristiano Ronaldo.",
+            "source_title": "Messi vs Ronaldo: All-Time Stats Comparison",
+            "confidence": "high"
+          },
+          {
+            "claim": "Lionel Messi was awarded the Golden Ball as the tournament's best player during Argentina's 2022 World Cup victory.",
+            "source_title": "Lionel Messi vs. Cristiano Ronaldo: all-time goals, career stats ...",
+            "confidence": "high"
+          },
+          {
+            "claim": "Lionel Messi is the highest-scoring South American player in international football history with 115 goals.",
+            "source_title": "Messi vs Ronaldo - All Time Career Goals and Stats",
+            "confidence": "high"
+          },
+          {
+            "claim": "Lionel Messi demonstrated leadership in high-stakes international competition by scoring twice in the 2022 World Cup final.",
+            "source_title": "Lionel Messi vs. Cristiano Ronaldo: all-time goals, career stats ...",
+            "confidence": "high"
+          }
+        ]
+      },
+      "con": {
+        "speech": "• Cristiano Ronaldo’s dominance in international football is unmatched, as evidenced by his record-breaking 143 goals for Portugal, the most in the history of the men’s game.\n• Ronaldo has proven his superiority on the biggest stage by becoming the first male player to score in five different FIFA World Cups, demonstrating unparalleled longevity and consistency.\n• With over 140 goals in the UEFA Champions League and five titles to his name, Ronaldo has established a legacy of success in the world’s most prestigious club competition that far exceeds that of his peers.",
+        "queries": [
+          "Cristiano Ronaldo vs Lionel Messi total career goals and international scoring records",
+          "Cristiano Ronaldo vs Lionel Messi major trophy wins including UEFA Champions League titles",
+          "analysis of Cristiano Ronaldo peak performance in multiple top European leagues versus Lionel Messi"
+        ],
+        "sources": [
+          {
+            "title": "Most goals in international football: Know the top scorers",
+            "url": "https://www.olympics.com/en/news/most-goals-international-football-list-men-women",
+            "content": "Portugal’s Cristiano Ronaldo, with 143 goals in 226 matches and counting, has scored the most goals in international football in the men’s game.\n\nCristiano Ronaldo has been netting goals regularly since making his debut for the Portuguese national side in 2003 and has 10 hat-tricks to his name - also the most in international football.\n\nAny mention of Cristiano Ronaldo, however, feels incomplete w"
+          },
+          {
+            "title": "Lionel Messi vs. Cristiano Ronaldo: all-time goals, career stats, trophies | The Week",
+            "url": "https://theweek.co.uk/sport/football/955312/lionel-messi-vs-cristiano-ronaldo-rivalry-all-time-goals-career-stats",
+            "content": "Five-time Ballon d’Or winner Ronaldo, who has scored more than 950 goals for club and country, is the top goalscorer in men’s international football with 143 goals for Portugal and holds the record for most international appearances (225), having made his debut way back in 2003. He won the European Championship with Portugal in 2016 and is also the all-time top goalscorer for Real Madrid (451) and"
+          },
+          {
+            "title": "Messi vs Ronaldo - All Time Career Goals and Stats",
+            "url": "https://www.messivsronaldo.app/",
+            "content": "Ronaldo is Portugal's all time top scorer with 143 goals (in 226 appearances), and Messi is Argentina's all-time top scorer with 115 goals (in 196 appearances).\n\nIn terms of individual accolades for the national team, Ronaldo won the Euro 2021 Golden Boot for the top scorer, as well as the Silver Boot at Euro 2016 for scoring the 2nd most goals in the tournament. Messi has won the World Cup Golden"
+          },
+          {
+            "title": "Lionel Messi vs. Cristiano Ronaldo: all-time goals, career stats, trophies | The Week",
+            "url": "https://theweek.com/sport/football/955312/lionel-messi-vs-cristiano-ronaldo-rivalry-all-time-goals-career-stats",
+            "content": "The 40-year-old’s trophy collection includes five Champions League winners’ medals, plus league titles in England, Spain and Italy. At Qatar 2022 he became the first male player to score in five different Fifa World Cups. Ronaldo was also the first player to score at five European Championships.\n\nFive-time Ballon d’Or winner Ronaldo, who has scored more than 950 goals for club and country, is the "
+          },
+          {
+            "title": "Lionel Messi vs. Cristiano Ronaldo: all-time goals, career stats, trophies | The Week",
+            "url": "https://www.theweek.co.uk/90293/lionel-messi-vs-cristiano-ronaldo-career-goals-awards-internationals",
+            "content": "With two goals in the epic final against France, and a penalty in the shoot-out, Messi inspired Argentina to an unforgettable victory at the Lusail Stadium. He was also awarded the Golden Ball for the tournament's best player and only missed out on the Golden Boot after Kylian Mbappé's brilliant hat-trick saw the French striker finish with eight goals. Messi scored seven goals and also provided th"
+          },
+          {
+            "title": "Cristiano Ronaldo vs Messi Career Comparisons - Ronald O' the Film",
+            "url": "https://www.ronaldothefilm.com/cristiano-ronaldo-vs-messi-career-comparisons/",
+            "content": "Cristiano Ronaldo and Lionel Messi have established numerous notable career records that highlight their exceptional talent and commitment to excellence in football.\n\nRonaldo holds the record for the most goals in UEFA Champions League history, having achieved an impressive total of over 140 goals, along with securing five Ballon d’Or awards, underscoring his legendary scoring ability. Meanwhile, "
+          },
+          {
+            "title": "International Goals and Stats - Messi vs Ronaldo All Time ...",
+            "url": "https://www.messivsronaldo.app/international-stats/",
+            "content": "| Lionel Messi | Cristiano Ronaldo |\n --- | [...] Having played in six European Championships and reaching at least the semi-finals in 3 of them, Ronaldo has played the most games of all time in the tournament, with 30 appearances. He's also the only player to score at five different Euros, and is the all time leading scorer in the competition as well with 14 goals.\n\nIn addition to the finals tour"
+          },
+          {
+            "title": "List of international goals scored by Cristiano Ronaldo - Wikipedia",
+            "url": "https://en.wikipedia.org/wiki/List_of_international_goals_scored_by_Cristiano_Ronaldo",
+            "content": "| 1 | | Morocco | 1 | | New Zealand | 1 | | North Korea | 1 | | Panama | 1 | | Qatar | 1 | | Scotland | 1 | | Serbia | 1 | | Ukraine | 1 | | Wales | 1 | | Total | 143 | | |  |  |  --- | | |  |  | This article is part of a series about Cristiano Ronaldo | | | ---   Portuguese professional footballer    Career  International goals  Achievements  Rivalry with Lionel Messi  ---   Eponyms and public ar"
+          },
+          {
+            "title": "List of international goals scored by Lionel Messi - Wikipedia",
+            "url": "https://en.wikipedia.org/wiki/List_of_international_goals_scored_by_Lionel_Messi",
+            "content": "Lionel Messi is an Argentine footballer who has represented the Argentina national team from his debut in 2005. Throughout his international career, Messi has scored 115 goals in 196 international appearances, making him the country's all-time top scorer; he surpassed Gabriel Batistuta's record of 54 goals with a free kick \"Free kick (association football)\") against the United States in the semi-f"
+          },
+          {
+            "title": "Cristiano Ronaldo goal tracker: Road to 1,000 career goals - ESPN",
+            "url": "https://www.espn.com/soccer/story/_/id/46751020/cristiano-ronaldo-goal-tracker-road-1000-career-goals",
+            "content": "Throughout his career, the Portugal superstar has broken most of the records and won most of the trophies he could have won, but being able to officially score 1,000 goals will put him in a pantheon of his own among athletes.\n\nRonaldo is already the leading men's international scorer with 143 goals from 225 games, while the rest of his domestic career total over his two-decade career have come in "
+          },
+          {
+            "title": "Messi–Ronaldo rivalry",
+            "url": "https://en.wikipedia.org/wiki/Messi%E2%80%93Ronaldo_rivalry",
+            "content": "Messi has won a world record 46 total official trophies (including a club record 34 major trophies as a Barcelona player), claiming twelve league titles, four UEFA Champions Leagues, seven Copa del Rey titles, seven Spanish Super Cups, one French Super Cup, three European Super Cups, three FIFA Club World Cups, one Leagues Cup and one MLS Cup. Messi was runner-up at three Copa Américas and at the "
+          },
+          {
+            "title": "How many UEFA Champions League titles has Lionel Messi ...",
+            "url": "https://bolavip.com/en/soccer/champions-league-titles-lionel-messi",
+            "content": "Lionel Messi of Barcelona celebrates with the trophy watched by Luis Suarez after the UEFA Champions League Final between Juventus and FC Barcelona at Olympiastadion on June 6, 2015 in Berlin, Germany.\n\nHis four trophies leave him two shy of Francisco Gento’s record six European Cups with Real Madrid. Cristiano Ronaldo, his enduring rival, boasts five titles: one with Manchester United and four wi"
+          },
+          {
+            "title": "How Many Champions League Titles Has Lionel Messi Won?",
+            "url": "https://www.si.com/soccer/how-many-champions-league-titles-has-lionel-messi-won",
+            "content": "# How Many Champions League Titles Has Lionel Messi Won?\n\nLionel Messi with the Champions League trophy.\nGoogle Discover\n\nWhether lighting up La Liga with FC Barcelona, enjoying success in France with Paris Saint-Germain, conquering the world with Argentina, or continuing his dominance in Major League Soccer with Inter Miami, Lionel Messi has always made winning look routine.\n\nThroughout his legen"
+          },
+          {
+            "title": "Trophies won by Cristiano Ronaldo 2024 - Statista",
+            "url": "https://www.statista.com/statistics/1008294/cristiano-ronaldo-trophy-titles/?srsltid=AfmBOoqCgfkvfu4ZeB1A8EHy1B5ZA1OgxIY8FHDXJFqqkhFBuTn0OB3t",
+            "content": "## Ronaldo’s club record\n\nRonaldo’s accolades at club level span across several countries, having played in three of the Big Five leagues during his career. As of 2023, the Al-Nassr forward was the soccer player with the most goals scored in the UEFA Champions League, having scored 12 goals more than second-placed Lionel Messi. The striker was also the player with the most Champions League appeara"
+          },
+          {
+            "title": "Cristiano Ronaldo Dos Santos Aveiro - History and honours",
+            "url": "https://www.realmadrid.com/en-US/the-club/history/football-legends/cristiano-ronaldo-dos-santos-aveiro",
+            "content": "Nobody throughout the club's history has scored as many goals as the Portuguese attacker, who boasts an impressive trophy haul as a Real Madrid player: four Champions League crowns, three Club World Cups and UEFA Super Cups apiece, two LaLiga titles, a pair of Copas del Rey and two Spanish Super Cups. This list of honours is completed with four Ballons d'Or, three Golden Shoe awards, two The Best "
+          }
+        ],
+        "wikipedia_anchor": null,
+        "claims": [
+          {
+            "claim": "Cristiano Ronaldo holds the record for the most goals in men's international football history with 143 goals.",
+            "source_title": "Most goals in international football: Know the top scorers",
+            "confidence": "high"
+          },
+          {
+            "claim": "Cristiano Ronaldo holds the record for the most UEFA Champions League goals in history, having scored over 140 goals in the competition.",
+            "source_title": "Cristiano Ronaldo vs Messi Career Comparisons - Ronald O' the Film",
+            "confidence": "high"
+          },
+          {
+            "claim": "Cristiano Ronaldo has won five UEFA Champions League titles, demonstrating superior success in the most prestigious European club competition.",
+            "source_title": "Lionel Messi vs. Cristiano Ronaldo: all-time goals, career stats, trophies | The Week",
+            "confidence": "high"
+          },
+          {
+            "claim": "Cristiano Ronaldo is the first male player to score in five different FIFA World Cups, establishing a record for longevity and scoring consistency on the biggest stage.",
+            "source_title": "Lionel Messi vs. Cristiano Ronaldo: all-time goals, career stats, trophies | The Week",
+            "confidence": "high"
+          },
+          {
+            "claim": "Cristiano Ronaldo has secured league titles in three of the most competitive leagues in world football: England, Spain, and Italy.",
+            "source_title": "Lionel Messi vs. Cristiano Ronaldo: all-time goals, career stats, trophies | The Week",
+            "confidence": "high"
+          }
+        ]
+      }
+    },
+    {
+      "round_num": 2,
+      "pro": {
+        "speech": "• While my opponent highlights total international goals, they ignore that Messi’s playmaking impact remains vastly superior, with 407 career assists compared to Ronaldo's 261, as highlighted in *Messi vs Ronaldo - All Time Career Goals and Stats*.\n\n• Messi’s creative superiority is cemented by his status as both the all-time La Liga top scorer and the league’s record-holder for assists, proving he mastered the highest level of European competition in both finishing and facilitation.\n\n• The 2025 performance data further underscores this gap, as Messi’s 25 assists for Inter Miami dwarf Ronaldo’s 4 assists at Al Nassr, confirming Messi’s role as",
+        "queries": [
+          "Lionel Messi vs Cristiano Ronaldo advanced playmaking and assist metrics comparison",
+          "career total trophies and major tournament awards for Messi vs Ronaldo",
+          "football pundits and legendary players quotes on Messi vs Ronaldo peak performance"
+        ],
+        "sources": [
+          {
+            "title": "Soccer GOAT Debate: Messi vs Ronaldo vs Pelé (Metrics)",
+            "url": "https://luson.com/who-is-the-g-o-a-t-of-soccer/",
+            "content": "Cristiano Ronaldo: Records for total UCL goals and legendary knockout productivity. His aerial power and late-run timing make him historically lethal in away ties and finals. Moreover, his performances across clubs (Manchester United, Real Madrid, Juventus) demonstrate adaptability.\n Lionel Messi: Fewer total UCL goals than Ronaldo yet superior seasons in combined goals + assists and chance creati"
+          },
+          {
+            "title": "Messi–Ronaldo rivalry",
+            "url": "https://en.wikipedia.org/wiki/Messi%E2%80%93Ronaldo_rivalry",
+            "content": "Messi is the all-time La Liga top scorer, as well as having the most assists in the competition's history – with Ronaldo in second for goals scored and in fourth for assists provided – while Ronaldo is the UEFA Champions League all-time top appearance maker, goalscorer and the second-highest in assists after Ryan Giggs, according to Opta statistics#Opta_criteria \"Assist (association football)\"), w"
+          },
+          {
+            "title": "Lionel Messi vs. Cristiano Ronaldo: Full Breakdown of ...",
+            "url": "https://www.si.com/soccer/lionel-messi-vs-cristiano-ronaldo-full-breakdown-2025-stats",
+            "content": "However, there can be no comparison when it comes to their creativity. Messi laid on 25 assists for Inter Miami, approximately one every two games, while Ronaldo managed just four across the entirety of 2025. It’s fair to say that the Portuguese superstar isn’t expected to do much more than score at Al Nassr.\n\nMessi’s goal contribution rate is far more eye-catching as a result, with the 38-year-ol"
+          },
+          {
+            "title": "Messi vs Ronaldo - All Time Career Goals and Stats",
+            "url": "https://www.messivsronaldo.app/",
+            "content": "## Who provides more assists?\n\nWhen it comes to assists, there's only one winner. Lionel Messi's playmaking abilities are right up there with the very best, and he has the numbers to prove it.\n\nMessi has racked up an impressive 407 assists in 1141 career appearances, compared to Ronaldo's 261 assists in 1312 games.\n\nHowever, because Messi has a clear ascendancy when it comes to assists, this often"
+          },
+          {
+            "title": "Messi vs Ronaldo career stats comparison",
+            "url": "https://www.facebook.com/groups/310009379049940/posts/26373599728930882/",
+            "content": "⚽ Career Stats Comparison Lionel Messi 🏟️ Career Matches: 1000+ ⚽ Career Goals: 820+ Career Assists: 350+ Ballon d'Or: 8 Champions"
+          },
+          {
+            "title": "Detailed Performance Stats - Messi vs Ronaldo Dribbles, Key ...",
+            "url": "https://www.messivsronaldo.app/detailed-stats/",
+            "content": "### Messi xA Stats\n\nMessi 1.86 fewer assists than he \"should\" have\n\n### Ronaldo xA Stats\n\nRonaldo 4.92 more assists than he \"should\" have\n\n## Aerial Duels League + UCL Since 09/10\n\n### Messi Ariel Duels\n\nMessi wins 0.20 aerial duels every 90 minutes\n\n### Ronaldo Ariel Duels\n\nRonaldo wins 1.38 aerial duels every 90 minutes\n\n## Average Match Rating League + UCL Since 09/10\n\n### Messi Average Match R"
+          },
+          {
+            "title": "Player comparison Cristiano Ronaldo / Lionel Messi",
+            "url": "https://www.transfermarkt.com/vergleich/spielervergleich/statistik/def/spieler/8198&28003",
+            "content": "| Competition | | wettbewerb |  |  |  |  |  |\n ---  ---  ---  --- |\n|  |  |  |  |  |  |  |  |\n ---  ---  ---  --- |\n| Total : | |  | 1080 | 816 | 261 | 109 | 88.775 |\n| LaLiga | LaLiga | 292 | 311 | 95 | 81 | 25.113 |\n| Premier League | Premier League | 236 | 103 | 47 | 170 | 17.517 |\n| UEFA Champions League | UEFA Champions League | 183 | 140 | 50 | 114 | 15.938 |\n| Saudi Pro League | Saudi Pro L"
+          },
+          {
+            "title": "Messi vs Ronaldo — Legendary Career Stats ...",
+            "url": "https://www.facebook.com/golesencontexto/posts/-messi-vs-ronaldo-legendary-career-stats-messi-886-goals-398-assists-ronaldo-948/1126680089657744/",
+            "content": "View all 5 replies\n\nOtg Morris\n\nI don't see any comparison between Messi and Ronaldo.\n\nMessi: 1 wc 🏆, 2 wc golden balls, 1 wc silver boot, 4 ucl trophies 🏆, 2 cupa America, 1 finalissima, 8 ballordors, 5 playmaker awards, 6 European golden shoes, 889 goals, 398 assist, 2 laureus sportman awards, 3 fifa d best, 4000 completed dribbles, 400 motm awards, 5 intl pott. 46 trophies 🏆\n\nMeanwhile, Ronaldo"
+          },
+          {
+            "title": "Lionel Messi vs. Cristiano Ronaldo: all-time goals, career ...",
+            "url": "https://theweek.com/sport/football/955312/lionel-messi-vs-cristiano-ronaldo-rivalry-all-time-goals-career-stats",
+            "content": "With two goals in the epic final against France, and a penalty in the shoot-out, Messi inspired Argentina to an unforgettable victory at the Lusail Stadium. He was also awarded the Golden Ball for the tournament's best player and only missed out on the Golden Boot after Kylian Mbappé's brilliant hat-trick saw the French striker finish with eight goals. Messi scored seven goals and also provided th"
+          },
+          {
+            "title": "All Time Club Career Stats",
+            "url": "https://www.messivsronaldo.app/club-stats/",
+            "content": "Lionel Messi Cristiano Ronaldo\n\n### Goal Contributions\n\n#### Goals\n\n#### Assists\n\n#### Appearances\n\n#### Minutes Played\n\n#### Goals Per Game\n\n#### Minutes Per Goal\n\n#### Mins Per Goal/Assist\n\n#### Hat-tricks\n\n### Goals By Type\n\n#### Penalties\n\n#### Free Kick Goals\n\n#### Outside the Box\n\n#### Inside the Box\n\n#### Left Foot\n\n#### Right Foot\n\n#### Headers\n\n#### Other Body Part\n\n### Performance Stats\n"
+          },
+          {
+            "title": "Cristiano Ronaldo vs. Lionel Messi: Career trophies, goals, stats and ...",
+            "url": "https://www.sportingnews.com/us/soccer/news/cristiano-ronaldo-vs-messi-goals-stats-trophies-awards-career/uz3gqlzlkl6uwvhuwwjxif4d",
+            "content": "Stats updated as of September 27, 2023.\n\n|  |  |  |  |  |\n ---  --- \n| Competition | Messi:  Games | Messi:  Goals | Ronaldo:  Games | Ronaldo:  Goals |\n| Friendlies | 54 | 49 | 52 | 20 |\n| Continental competitions | 34 | 13 | 76 | 57 |\n| World Cup finals & qualification | 87 | 42 | 69 | 44 |\n| TOTAL | 175 | 104 | 197 | 121 |\n\n## Ronaldo vs. Messi: Trophies & awards\n\nLionel Messi and Cristiano Ron"
+          },
+          {
+            "title": "Individual Awards - Messi vs Ronaldo All Awards and Achievements",
+            "url": "https://www.messivsronaldo.app/individual-awards/",
+            "content": "Messi Vs Ronaldo.app\n\n# Individual Awards - Messi vs Ronaldo\n\n Team\n\n## Ballon d'Or\n\n### Messi\n\n2023202120192015 \\2012 \\2011 \\2010 \\2009\n\n### Ronaldo\n\n201720162014 \\2013 \\2008\n\n\\ merged with FIFA world player of the year\n\n## FIFA World Player of the Year\n\n### Messi\n\n8\n\n2023 FIFA Best2022 FIFA Best2019 FIFA Best2015 FIFA Ballon d'Or2012 FIFA Ballon d'Or2011 FIFA Ballon d'Or2010 FIFA Ballon d'Or2009"
+          },
+          {
+            "title": "Team Trophies, Honours and Achievements",
+            "url": "https://www.messivsronaldo.app/honours-and-achievements/",
+            "content": "Messi Vs Ronaldo.app\n\n# Team Trophies - Messi vs Ronaldo\n\n Individual\n\n## Champions League\n\n### Messi\n\n4\n\n2014/15 Barcelona2010/11 Barcelona2008/09 Barcelona2005/06 Barcelona\n\n### Ronaldo\n\n5\n\n2017/18 Real Madrid2016/17 Real Madrid2015/16 Real Madrid2013/14 Real Madrid2007/08 Man Utd\n\n## League Titles\n\n### Messi\n\n13\n\n2024 MLS Supporters' Shield2022/23 Ligue 12021/22 Ligue 12018/19 La Liga2017/18 La"
+          },
+          {
+            "title": "Individual awards won by Messi vs Ronaldo",
+            "url": "https://michelacosta.com/messi-vs-ronaldo/awards/",
+            "content": "Cup Golden Ball (2014) 18. CONMEBOL Copa América Player of the Tournament (2015) 19. La Liga MVP (2015) 20. Alfredo Di Stéfano Trophy – Best player in La Liga (2015) 21. La Liga MVP (2017) 22. Alfredo Di Stéfano Trophy – Best player in La Liga (2017) 23. La Liga MVP (2018) 24. Alfredo Di Stéfano Trophy – Best player in La Liga (2018) 25. La Liga MVP (2019) 26. Alfredo Di Stéfano Trophy – Best play"
+          }
+        ],
+        "wikipedia_anchor": null,
+        "claims": [
+          {
+            "claim": "Lionel Messi has significantly more career assists than Cristiano Ronaldo, with 407 assists in 1141 appearances compared to Ronaldo's 261 assists in 1312 appearances.",
+            "source_title": "Messi vs Ronaldo - All Time Career Goals and Stats",
+            "confidence": "high"
+          },
+          {
+            "claim": "Lionel Messi is the all-time La Liga top scorer and also holds the record for the most assists in the competition's history.",
+            "source_title": "Messi–Ronaldo rivalry",
+            "confidence": "high"
+          },
+          {
+            "claim": "Lionel Messi has won 8 Ballon d'Or awards, a hallmark of his superior individual performance and consistency throughout his career.",
+            "source_title": "Messi vs Ronaldo — Legendary Career Stats ...",
+            "confidence": "high"
+          },
+          {
+            "claim": "In 2025, Lionel Messi displayed significantly higher creativity than Cristiano Ronaldo, recording 25 assists for Inter Miami compared to Ronaldo's 4 assists at Al Nassr.",
+            "source_title": "Lionel Messi vs. Cristiano Ronaldo: Full Breakdown of ...",
+            "confidence": "high"
+          },
+          {
+            "claim": "Lionel Messi led Argentina to victory in the 2022 World Cup and was awarded the Golden Ball as the tournament's best player.",
+            "source_title": "Lionel Messi vs. Cristiano Ronaldo: all-time goals, career ...",
+            "confidence": "high"
+          }
+        ]
+      },
+      "con": {
+        "speech": "• While my opponent focuses on domestic assists, they neglect that Cristiano Ronaldo records a goal involvement every 92.0 minutes in Champions League knockout stages, proving his efficiency is superior to Messi’s 109.4 minutes per involvement as reported in *Messi vs Ronaldo - Champions League - Knockout Goals and Stats*.\n\n• Ronaldo’s tactical versatility is demonstrated by him representing four different clubs since 2008, consistently delivering high-level performances across diverse competitive environments.\n\n• In addition to his primary scoring threat, Ronaldo has provided 15 assists in Champions League knockout matches, outperforming Messi’s total of 12 assists in the same elite stage.\n\n• Cristiano Ronaldo continues to secure",
+        "queries": [
+          "Cristiano Ronaldo vs Lionel Messi Champions League knockout stage goals and performance statistics",
+          "Cristiano Ronaldo vs Lionel Messi head-to-head records and major trophy comparisons including UEFA Champions League titles",
+          "statistical evidence of Cristiano Ronaldo's goalscoring consistency across multiple top European leagues compared to Messi"
+        ],
+        "sources": [
+          {
+            "title": "Performance in knockout rounds by Messi vs Ronaldo",
+            "url": "https://michelacosta.com/messi-vs-ronaldo/knockout-stages/",
+            "content": "Lionel Messi vs Cristiano Ronaldo\n\nPHP: 8.2.30 | MySQL: 8.0.43\n\n# Performance in knockout rounds by Messi vs Ronaldo\n\n| Totals | Per game |\n --- |\n| Team | Games | Goals | Assists | Goals | Assists | Contrib. |\n| FC Barcelona | 182 | 127 | 53 | 0.70 | 0.29 | 0.99 |\n| PSG | 7 | 1 | 0 | 0.14 | 0.00 | 0.14 |\n| Inter Miami | 29 | 23 | 12 | 0.79 | 0.41 | 1.21 |\n| Argentina | 32 | 11 | 20 | 0.34 | 0.63 "
+          },
+          {
+            "title": "Messi vs Ronaldo - Champions League - Knockout Goals and - Stats",
+            "url": "https://www.messivsronaldo.app/club-stats/champions-league/",
+            "content": "If we look at assists, Ronaldo has 15 knockout stage assists to Messi's 12; although Ronaldo has played 8 more games. Overall, Ronaldo scores or assists every 92.0 minutes in Champions League knockout games, whereas Messi scores or assists every 109.4 minutes.\n\nMessi has also had some huge nights in the Champions League knockout rounds. His personal favourite is probably his brace in the 2011 semi"
+          },
+          {
+            "title": "Messi and Ronaldo in the Champions League Knockout Stages",
+            "url": "https://www.facebook.com/stanbliss.bukason/posts/messi-and-ronaldo-in-the-champions-league-knockout-stages-head-to-headmessi5-gam/1043988047908384/",
+            "content": "Messi has scored 22 goals and provided 12 assists in their clashes, while Ronaldo has scored 21 goals and provided 1 assist. The Goat Lionel"
+          },
+          {
+            "title": "Messi vs Ronaldo in knockouts of the Champions League",
+            "url": "https://michelacosta.com/messi-vs-ronaldo/stats/champions-league-knockouts/",
+            "content": "Lionel Messi vs Cristiano Ronaldo\n\n# Messi vs Ronaldo in knockouts of the Champions League\n\n|  | Totals | | | Per game | | |\n ---  ---  --- \n| Team | Games | Goals | Assists | Goals | Assists | Contrib. |\n| FC Barcelona | 70 | 47 | 12 | 0.67 | 0.17 | 0.84 |\n| PSG | 4 | 0 | 0 | 0.00 | 0.00 | 0.00 |\n|  |  |  |  |  |  |  |\n ---  ---  --- \n| Totals | 74 | 47 | 12 | 0.64 | 0.16 | 0.80 |\n\nLionel Messi\n\n"
+          },
+          {
+            "title": "International Goals and Stats - Messi vs Ronaldo All Time International Stats",
+            "url": "https://www.messivsronaldo.app/international-stats/",
+            "content": "\\ Match ratings and MOTM based on WhoScored, SofaScore or FotMob ratings depending on availability\n\n## All Major Tournament Knockouts\n\n### Messi Stats All Major Tournament Knockouts All Time Argentina\n\n 11 Goals\n 18 Assists\n 31 Apps\n\n 263 minutes per goal\n 100 minutes per goal contribution\n\n### Ronaldo Stats All Major Tournament Knockouts All Time Portugal\n\n 3 Goals\n 2 Assists\n 21 Apps\n\n 610 minut"
+          },
+          {
+            "title": "Messi vs. Ronaldo: Head-to-head record, most memorable clashes",
+            "url": "https://www.espn.com/soccer/story/_/id/37583118/messi-ronaldos-most-memorable-clashes-champions-league-el-clasico",
+            "content": "Ronaldo has represented four clubs since first playing against Messi in 2008, with Messi now at his third following his midseason move to Miami. The duo have played against each other five times in the Champions League knockout phase: both legs of the 2007-08 (Barca vs. Manchester United) and 2010-11 (Barca vs. Real Madrid) semifinals, as well as the 2008-09 final in Rome, in which Messi scored fo"
+          },
+          {
+            "title": "Lionel Messi vs. Cristiano Ronaldo: all-time goals, career stats ...",
+            "url": "https://theweek.com/sport/football/955312/lionel-messi-vs-cristiano-ronaldo-rivalry-all-time-goals-career-stats",
+            "content": "On 12 August 2023 Ronaldo won his first trophy in Saudi Arabia, scoring twice in Al Nassr’s 2-1 victory over Al-Hilal in the Arab Club Champions Cup final. He extended his contract with the club over the summer, where he has enjoyed a perfect start to the new season with six goals and six wins out of six.\n\n## All-time goals, career statistics and red cards\n\nCristiano Ronaldo and Lionel Messi\n\nCris"
+          },
+          {
+            "title": "Comparing Ronaldo and Messi's International Tournament ...",
+            "url": "https://www.givemesport.com/cristiano-ronaldo-lionel-messi-international-tournament-knockout-stats/",
+            "content": "Messi, on the other hand, has slotted home eight times in his 24 games. However, what is more damning is that if you removed his appearances in the Copa America, he would still come out on top, having scored five times in eleven knockout matches at the World Cup.\n\nLionel Messi and Cristiano Ronaldo \n\n##### Lionel Pessi vs Misstiano Penaldo - Stats Show one Clear Winner From 12 Yards\n\nIn a nightmar"
+          },
+          {
+            "title": "Performance in knockout rounds by Messi vs Ronaldo in Champions ...",
+            "url": "https://michelacosta.com/messi-vs-ronaldo/knockout-stages/uefa-champions-league/current-season/by-age/",
+            "content": "Performance in knockout rounds by Messi vs Ronaldo in Champions League in current season and many other statistics about the greatest rivalry in football"
+          },
+          {
+            "title": "Champions League round of 16 records: Cristiano Ronaldo and ...",
+            "url": "https://www.uefa.com/uefachampionsleague/news/024f-0e99649529d9-09cef0d97320-1000--champions-league-round-of-16-records-cristiano-ronaldo-and-/",
+            "content": "Wednesday, February 25, 2026\n\nArticle summary\n\nWho has played the most round of 16 games and scored the most goals? Which are the most successful clubs?\n\nArticle top media content\n\nImage 34: Lionel Messi has scored the most goals in the round of 16\n\nLionel Messi has scored the most goals in the round of 16 Getty Images\n\nArticle body\n\nWe keep track of all the UEFA Champions League round of 16 recor"
+          },
+          {
+            "title": "Messi vs Ronaldo: Head to Head Stats & Comparison 2025",
+            "url": "https://www.squawka.com/en/comparison-matrix/messi-vs-ronaldo/",
+            "content": "In terms of trophy hauls, Lionel Messi has won 42 major honours, including four Champions Leagues and famously one World Cup in 2022. Ronaldo’s total is 32, but he has won one more Champions League than his long-running rival, four with Real Madrid and one with Manchester United.\n\nThere’s also the small matter of the Ballon d’Or. Messi has a record eight to his name, the most recent coming in 2023"
+          },
+          {
+            "title": "Messi–Ronaldo rivalry",
+            "url": "https://en.wikipedia.org/wiki/Messi%E2%80%93Ronaldo_rivalry",
+            "content": "### Head-to-head summary\n\n| Competition | Matches played | Messi wins | Draws | Ronaldo wins | Messi goals | Ronaldo goals |\n ---  ---  --- \n| La Liga | 18 | 10 | 4 | 4 | 12 | 9 |\n| UEFA Champions League | 6 | 2 | 2 | 2 | 3 | 2 |\n| Copa del Rey | 5 | 1 | 2 | 2 | 0 | 5 |\n| Supercopa de España | 5 | 2 | 1 | 2 | 6 | 4 |\n| International friendly | 2 | 1 | 0 | 1 | 1 | 1 |\n| Club friendly | 1 | 1 | 0 | "
+          },
+          {
+            "title": "Messi vs Ronaldo - All Time Career Goals and Stats",
+            "url": "https://www.messivsronaldo.app/",
+            "content": "## Who has won more trophies?\n\nIn terms of trophies, Messi has the overall lead, with 46 trophies to Ronaldo's 35 trophies (including Messi's 2008 Olympic triumph and 2005 U-20 World Cup).\n\nInternationally, Messi has now won both the Copa America (x2) and the World Cup with Argentina, while Ronaldo has won the Euros with Portugal as well as a Nations League trophy.\n\nMessi has 12 league titles (13 "
+          },
+          {
+            "title": "Cristiano Ronaldo vs Lionel Messi: Head-to-head stats | OneFootball",
+            "url": "https://onefootball.com/en/news/cristiano-ronaldo-vs-lionel-messi-head-to-head-stats-38711014",
+            "content": "But then it was time for the Barcelona vs Real Madrid rivalry that established both players as world superstars. From 2009 to 2018, the pair competed against each other in Spain in what were always must-watch clashes for every football fan.\n\n### Messi vs Ronaldo: Head-to-head record\n\n### Every time Messi and Ronaldo have faced each other\n\nMessi and Ronaldo did actually face each other in a 37th ma"
+          }
+        ],
+        "wikipedia_anchor": null,
+        "claims": [
+          {
+            "claim": "Cristiano Ronaldo outperforms Lionel Messi in Champions League knockout stages, recording a goal involvement every 92.0 minutes compared to Messi's 109.4 minutes.",
+            "source_title": "Messi vs Ronaldo - Champions League - Knockout Goals and - Stats",
+            "confidence": "high"
+          },
+          {
+            "claim": "Cristiano Ronaldo has provided more assists in Champions League knockout stage matches than Lionel Messi, with 15 assists to Messi's 12.",
+            "source_title": "Messi vs Ronaldo - Champions League - Knockout Goals and - Stats",
+            "confidence": "high"
+          },
+          {
+            "claim": "In all major international tournament knockout matches, Cristiano Ronaldo has 21 appearances, which provides a significant sample size for comparison against Messi's 31 appearances.",
+            "source_title": "Comparing Ronaldo and Messi's International Tournament ...",
+            "confidence": "high"
+          },
+          {
+            "claim": "Cristiano Ronaldo has represented four different clubs since 2008, demonstrating high-level performance across a diverse range of top-tier competitive environments.",
+            "source_title": "Messi vs. Ronaldo: Head-to-head record, most memorable clashes",
+            "confidence": "high"
+          },
+          {
+            "claim": "Cristiano Ronaldo has secured trophies in new football environments, such as winning the Arab Club Champions Cup final with Al Nassr in 2023.",
+            "source_title": "Lionel Messi vs. Cristiano Ronaldo: all-time goals, career stats ...",
+            "confidence": "high"
+          }
+        ]
+      }
+    },
+    {
+      "round_num": 3,
+      "pro": {
+        "speech": "• While I appreciate your personal affinity for Messi, \"loving\" a player is an emotional preference that must be backed by the objective, record-breaking reality of his career. You claim that Ronaldo’s specific tournament metrics somehow outweigh Messi's impact, yet you ignore that Messi is the most decorated player in the history of soccer, reflecting a level of sustained excellence that transcends single-competition statistics according to *Lionel Messi's soccer career: Stats, trophies, honors*. Your reliance on isolated knockout stats fails to account for the holistic superiority Messi displays in both creation and execution, proven by the fact that he has recorded 407 career assists compared to Ronaldo's 261. I maintain that this fundamental disparity",
+        "queries": [
+          "Lionel Messi vs Cristiano Ronaldo career playmaking and creative statistics comparison",
+          "statistical analysis of goal contributions per game for Messi vs Ronaldo in peak seasons",
+          "expert consensus and football pundit analysis on Messi's influence vs Ronaldo's scoring dominance"
+        ],
+        "sources": [
+          {
+            "title": "Lionel Messi vs. Cristiano Ronaldo: Full Breakdown of 2025 Stats",
+            "url": "https://www.si.com/soccer/lionel-messi-vs-cristiano-ronaldo-full-breakdown-2025-stats",
+            "content": "However, there can be no comparison when it comes to their creativity. Messi laid on 25 assists for Inter Miami, approximately one every two games, while Ronaldo managed just four across the entirety of 2025. It’s fair to say that the Portuguese superstar isn’t expected to do much more than score at Al Nassr.\n\nMessi’s goal contribution rate is far more eye-catching as a result, with the 38-year-ol"
+          },
+          {
+            "title": "Messi vs Ronaldo Career Stats 2026 - SoccFact",
+            "url": "https://www.soccfact.com/2026/02/messi-vs-ronaldo-final-comparison-total-career-stats.html?m=1",
+            "content": "While Ronaldo holds the record for most international goals, Messi’s performances in critical tournaments like the 2022 World Cup highlight his unmatched ability to influence decisive games. My unique perspective on this is that Messi’s leadership often transcends statistics, inspiring team cohesion and performance.\n\n## Assists, Playmaking, and Creativity\n\n| Player | Total Career Assists |\n --- |\n"
+          },
+          {
+            "title": "Messi vs Ronaldo - All Time Career Goals and Stats",
+            "url": "https://www.messivsronaldo.app/",
+            "content": "## Who provides more assists?\n\nWhen it comes to assists, there's only one winner. Lionel Messi's playmaking abilities are right up there with the very best, and he has the numbers to prove it.\n\nMessi has racked up an impressive 407 assists in 1141 career appearances, compared to Ronaldo's 261 assists in 1312 games.\n\nHowever, because Messi has a clear ascendancy when it comes to assists, this often"
+          },
+          {
+            "title": "Lionel Messi vs. Cristiano Ronaldo: all-time goals, career stats, trophies",
+            "url": "https://theweek.com/sport/football/955312/lionel-messi-vs-cristiano-ronaldo-rivalry-all-time-goals-career-stats",
+            "content": "# Cristiano Ronaldo vs. Lionel Messi: how they compare on goals, career stats and awards\n\nStars continue to break records and push their 20-year rivalry even as they enter the twilight of their careers\n\nCristiano Ronaldo\n\nA free daily email with the biggest news stories of the day – and the best features from TheWeek.com\n\nYou are now subscribed\n\nYour newsletter sign-up was successful\n\nThe debate o"
+          },
+          {
+            "title": "Messi or Ronaldo - who is truly the best?",
+            "url": "https://www.theperspective.com/debates/sports/messi-ronaldo-truly-best",
+            "content": "The international paradigm:\n\nRonaldo’s international career puts him on a higher level than Messi. In fact, before the 2022 World Cup, Messi never won an international trophy. He lost finals in both the Copa America (the South America championship) and the World Cup 2014. In addition, Ronaldo has better international goalscoring stats in competitive international games than Messi (102 goals compar"
+          },
+          {
+            "title": "Messi's World Cup Win May Have Finally Crowned Him the GOAT",
+            "url": "https://time.com/6240741/messi-ronaldo-greatest-of-all-time-stats-comparison/",
+            "content": "Advertisement\n\nPrimary image\n\nWhile the two are not hanging up their boots just yet as professional soccer players, it’s worth looking back on the amazing heights reached by both Messi and Ronaldo. At the twilight of their era of domination, here are some metrics to compare the superstars.\n\n## Statistics: Too Close to Call\n\nAt the senior club level, Ronaldo debuted in September 2002 for the Portug"
+          },
+          {
+            "title": "Lionel Messi stats and ratings",
+            "url": "https://www.sofascore.com/football/player/lionel-messi/12994",
+            "content": "ATT\n\n83\n\nTEC\n\n80\n\nTAC\n\n65\n\nDEF\n\n30\n\nCRE\n\n73\n\nMar 2023\n\nMar 2024\n\nMar 2025\n\nMar 2026\n\nClick the graph to see average values for this position\n\nPlayer positions\n\nStrengths\n\nConsistency\nPlaymaking\nLong shots\n\nWeaknesses\nNo outstanding weaknesses\n\nST\n\nRW\n\nTransfer history\n\n'04\n'05\n'21\n'23\n'26\n\n16.3M €\n10.9M €\n5.4M €\n0\n\nMarket value\n\n16.3M €\n\nTransfer fee\n\nInter Miami CF\n14 Jul 2023\n\nFree\nParis Saint-G"
+          },
+          {
+            "title": "MessiStats - Lionel Messi Statistics",
+            "url": "https://www.messistats.com/",
+            "content": "### Defeats\n\n11\n\n## Remarkable\n\n### Left footed goals\n\n87%\n\n### Right footed goals\n\n12%\n\n### Opening goals\n\n226\n\n### Missed penalties\n\n22%\n\n### Camp Nou goals\n\n396\n\n### Goals as sub\n\n59\n\n### 2+ Goal games\n\n237\n\n### Games not scored\n\n548\n\n## Totals\n\n### Games\n\n1137\n\n### Goals\n\n896\n\n### Assists\n\n407\n\n### Hattricks\n\n60\n\n### Penalties\n\n112\n\n### Wins\n\n766\n\n### Draws\n\n218\n\n### Defeats\n\n153 [...] For an "
+          },
+          {
+            "title": "Lionel Messi's soccer career: Stats, trophies, honors",
+            "url": "https://www.espn.com/soccer/story/_/id/40624256/lionel-messi-soccer-career-stats-accolades-honors",
+            "content": "## ESPN\n\n# Lionel Messi's soccer career: Stats, trophies, honors\n\nCopy Link\n\nLionel Messi is the most decorated player in the history of the world's most popular sport. The Argentine superstar has transcended soccer, earning prime real estate on ESPN's list of the greatest athletes of the 21st century.\n\nBeing the greatest goal scorer for both Argentina and Barcelona is just one of a laundry list o"
+          },
+          {
+            "title": "Lionel Andrés Messi Cuccitini stats",
+            "url": "https://players.fcbarcelona.com/en/player/548-messi-lionel-andres-messi-cuccitini",
+            "content": "| 18SEASONS | 779Oficial matches | 63614Minutes played | 672Goals | 84Yellow cards | 1Red cards | 58Unofficial matches | 37Unofficial goals |\n ---  ---  ---  --- |\n| 2003-04 | 0 | 0 | 0 | 0 | 0 | 1 | 0 |\n| 2004-05 | 9 | 240 | 1 | 0 | 0 | 8 | 3 |\n| 2005-06 | 25 | 1416 | 8 | 2 | 0 | 5 | 2 |\n| 2006-07 | 36 | 2757 | 17 | 4 | 0 | 4 | 1 |\n| 2007-08 | 40 | 2959 | 16 | 6 | 0 | 2 | 1 |\n| 2008-09 | 52 | 398"
+          },
+          {
+            "title": "Messi Vs Ronaldo Best Years",
+            "url": "https://www.messivsronaldo.app/articles/messi-ronaldo-best-years/",
+            "content": "2011–2012 ... The 2011-2012 years showed us the peak of Cristiano Ronaldo with Real Madrid. He played the role of a trump card pulling his team to"
+          },
+          {
+            "title": "Messi vs Ronaldo goal contributions",
+            "url": "https://www.facebook.com/groups/9002902079162957g/posts/3175808335926939/",
+            "content": "Lionel Messi (2011/12) 🏟️ 60 Games ⚽️ 73 Goals 32 Assists 105 Goal Contributions Cristiano Ronaldo (2014/15) 🏟️ 54 Games ⚽️ 61 Goals 23"
+          },
+          {
+            "title": "Messi vs Ronaldo EVERY Season Stats Comparison - YouTube",
+            "url": "https://www.youtube.com/watch?v=YrPhi_QSV50",
+            "content": "This is a comparison between Cristiano Ronaldo and Lionel Messi Season By Season stats, from 2002/03 season to 2024/25 season."
+          },
+          {
+            "title": "International Goals and Stats - Messi vs Ronaldo All Time ...",
+            "url": "https://www.messivsronaldo.app/international-stats/",
+            "content": "| List of Lionel Messi International Achievements  * 2024 Copa America Winner * 2022 World Cup Winner * 2022 Finalissima Winner * 2021 Copa America Winner * 2008 Olympics Gold Medal * 2005 FIFA U20 World Cup Winner * 2016 Copa America Runner-up * 2015 Copa America Runner-up * 2014 FIFA World Cup Runner-up * 2007 Copa America Runner-up * 2022 World Cup Golden Ball * 2022 Finalissima Best Player * 2"
+          }
+        ],
+        "wikipedia_anchor": null,
+        "claims": [
+          {
+            "claim": "Lionel Messi has significantly higher career assist numbers than Cristiano Ronaldo, recording 407 assists in 1141 appearances compared to Ronaldo's 261 assists in 1312 appearances.",
+            "source_title": "Messi vs Ronaldo - All Time Career Goals and Stats",
+            "confidence": "high"
+          },
+          {
+            "claim": "In 2025, Lionel Messi demonstrated superior creativity by providing 25 assists for Inter Miami, whereas Cristiano Ronaldo provided only four assists across the entire year.",
+            "source_title": "Lionel Messi vs. Cristiano Ronaldo: Full Breakdown of 2025 Stats",
+            "confidence": "high"
+          },
+          {
+            "claim": "Lionel Messi is the most decorated player in the history of soccer, reflecting his status as the greatest player in the sport's history.",
+            "source_title": "Lionel Messi's soccer career: Stats, trophies, honors",
+            "confidence": "medium"
+          },
+          {
+            "claim": "Lionel Messi's performance in the 2022 World Cup demonstrates an unmatched ability to influence the most critical and decisive games in international soccer.",
+            "source_title": "Messi vs Ronaldo Career Stats 2026 - SoccFact",
+            "confidence": "high"
+          },
+          {
+            "claim": "Lionel Messi maintains a highly balanced offensive profile with 87% of his goals scored with his left foot and 12% with his right, and he has achieved 237 multi-goal games throughout his career.",
+            "source_title": "MessiStats - Lionel Messi Statistics",
+            "confidence": "high"
+          }
+        ]
+      },
+      "con": {
+        "speech": "• While I acknowledge your personal affection for Messi, your sentiment does not supersede the cold, hard data that proves Ronaldo’s unmatched efficiency in the most demanding club environment.\n• Cristiano Ronaldo is the undisputed king of the highest level of European football, holding the record for the most goals in UEFA Champions League knockout stages with 67 strikes.\n• His dominance is further solidified by his all-time record of 140 Champions League goals and his historic 17-goal performance in the 2013/14 season, proving he consistently delivered when the stakes were at their absolute highest.\n• According to data from the *Champions League - Knockout Goals and - Stats* report, Ronaldo maintains",
+        "queries": [
+          "Cristiano Ronaldo vs Lionel Messi Champions League knockout stage efficiency and goal contribution statistics",
+          "comparative analysis of Cristiano Ronaldo's goalscoring records in multiple top European leagues vs Messi",
+          "statistical evidence of Cristiano Ronaldo's international goal records and tournament impact superiority"
+        ],
+        "sources": [
+          {
+            "title": "Champions League - Knockout Goals and - Stats",
+            "url": "https://www.messivsronaldo.app/club-stats/champions-league/",
+            "content": "If we look at assists, Ronaldo has 15 knockout stage assists to Messi's 12; although Ronaldo has played 8 more games. Overall, Ronaldo scores or assists every 92.0 minutes in Champions League knockout games, whereas Messi scores or assists every 109.4 minutes.\n\nMessi has also had some huge nights in the Champions League knockout rounds. His personal favourite is probably his brace in the 2011 semi"
+          },
+          {
+            "title": "Messi vs Ronaldo in knockouts of the Champions League",
+            "url": "https://michelacosta.com/messi-vs-ronaldo/stats/champions-league-knockouts/",
+            "content": "|  |\n\n| 2-0 |\n|  | Messi, 90′ |\n|\n\n08-03-2023\n\nView all matches\n\nUEFA Champions League · Round of 16  \nManchester Utd vs Atletico Madrid\n\n|  |\n\n| 0-1 |\n| C. Ronaldo, 90′ |  |\n|\n\n15-03-2022\n\nView all matches\n\nCasas de apuestas sin licencia española\n\nTimeframe\n\nLionel Messi\n\nCristiano Ronaldo\n\n38 years, 8 months, 16 days+-869 days\n\n41 years, 1 month, 7 days+869 days\n\n18 seasons 0\n\n74 -5\n\n79 games pl"
+          },
+          {
+            "title": "Cristiano Ronaldo In Ucl Knockout Stages",
+            "url": "https://www.statmuse.com/fc/ask/cristiano-ronaldo-in-ucl-knockout-stages",
+            "content": "Cristiano Ronaldo had 4 hat tricks, 67 goals and 7 assists in 85 appearances in the Champions League knockout stage in his career."
+          },
+          {
+            "title": "Lionel Messi vs. Cristiano Ronaldo: Full Breakdown of ...",
+            "url": "https://www.si.com/soccer/lionel-messi-vs-cristiano-ronaldo-full-breakdown-2025-stats",
+            "content": "| Statistic | Lionel Messi | Cristiano Ronaldo |\n --- \n| Appearances | 5 | 9 |\n| Goals | 3 | 8 |\n| Assists | 3 | 0 |\n| Minutes per Goal Contribution | 63 | 91 |\n\nStatistic\n\nLionel Messi\n\nCristiano Ronaldo\n\nAppearances\n\n5\n\n9\n\nGoals\n\n3\n\n8\n\nAssists\n\n3\n\n0\n\nMinutes per Goal Contribution\n\n63\n\n91\n\n## Trophies Won by Lionel Messi & Cristiano Ronaldo in 2025\n\nInter Miami - MLS Cup\n\nNow no longer turning ou"
+          },
+          {
+            "title": "Messi Career Ucl Knockout Goals And Assists Per 90 ...",
+            "url": "https://www.statmuse.com/fc/ask/messi-career-ucl-knockout-goals-and-assists-per-90-from-2008-to-2019",
+            "content": "Lionel Messi had 0.88 goals plus assists per 90 minutes in the Champions League knockout stage between the 2007-08 and 2018-19 seasons."
+          },
+          {
+            "title": "Lionel Messi vs. Cristiano Ronaldo: all-time goals, career ...",
+            "url": "https://theweek.com/sport/football/955312/lionel-messi-vs-cristiano-ronaldo-rivalry-all-time-goals-career-stats",
+            "content": "With two goals in the epic final against France, and a penalty in the shoot-out, Messi inspired Argentina to an unforgettable victory at the Lusail Stadium. He was also awarded the Golden Ball for the tournament's best player and only missed out on the Golden Boot after Kylian Mbappé's brilliant hat-trick saw the French striker finish with eight goals. Messi scored seven goals and also provided th"
+          },
+          {
+            "title": "Lionel Messi - Stats by competition | Transfermarkt",
+            "url": "https://www.transfermarkt.us/lionel-messi/detaillierteleistungsdaten/spieler/28003",
+            "content": "| 05/06 | UEFA Champions League | UEFA Champions League | FC Barcelona | 6 | 1 | 2  -  322' |\n| 04/05 | UEFA Champions League | UEFA Champions League | FC Barcelona | 1  -  -  90' | [...] | 22/23 | UEFA Champions League | UEFA Champions League | Paris Saint-Germain | 7 | 4 | 4  -  615' |\n| 21/22 | UEFA Champions League | UEFA Champions League | Paris Saint-Germain | 7 | 5  1  - | 630' |\n| 20/21 | "
+          },
+          {
+            "title": "Every Cristiano Ronaldo's UEFA Champions League records",
+            "url": "https://www.reddit.com/r/championsleague/comments/1qco2xt/every_cristiano_ronaldos_uefa_champions_league/",
+            "content": "# Every Cristiano Ronaldo's UEFA Champions League records\n\nMost UEFA club competition appearances: 197\n\nMost UEFA club competition goals and assists: 145 Goals & 41 Assists\n\nMost UEFA Champions League goals: 140\n\nMost goals in a UEFA Champions League season: 17 (2013/14)\n\nMost goals in UEFA Champions League knockout stages: 67\n\nUEFA Champions League top scorer: 2007/08, 2012/13, 2013/14, 2014/15, "
+          },
+          {
+            "title": "What UEFA records does Cristiano Ronaldo hold? | European Qualifiers",
+            "url": "https://www.uefa.com/european-qualifiers/news/0253-0d820b46805f-b78ccae2c451-1000--what-uefa-records-does-cristiano-ronaldo-hold/",
+            "content": "Most UEFA club competition appearances: 197\n   Most UEFA club competition goals: 145\n   Most UEFA Champions League goals: 140\n   Most goals in a UEFA Champions League season: 17 (2013/14)\n   Most goals in UEFA Champions League knockout stages: 67\n   UEFA Champions League top scorer: 2007/08, 2012/13, 2013/14, 2014/15, 2015/16, 2016/17, 2017/18\n   Most UEFA Champions League appearances: 183\n   Most"
+          },
+          {
+            "title": "Cristiano Ronaldo - Stats 17/18 (Detailed view)",
+            "url": "https://www.transfermarkt.com/cristiano-ronaldo/leistungsdaten/spieler/8198/saison/2017/plus/1",
+            "content": "## Stats 17/18\n\n| Competition | | wettbewerb |  |  |  |  |  |  |  |  |  |  |  |  |\n ---  ---  ---  ---  ---  ---  --- \n|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |\n ---  ---  ---  ---  ---  ---  --- \n| Total 17/18: | |  | 44 | 44 | 8  2 | 7 | 3 | 1  7 | 84' | 3.678' |\n| LaLiga | LaLiga | 27 | 26 | 5  - | 7 | 1  - | 3 | 88' | 2.297' |\n| UEFA Champions League | UEFA Champions League | 13 | 15 | 3 "
+          },
+          {
+            "title": "[PDF] Comparative analysis of Cristiano Ronaldo and Lionel messi 100 ...",
+            "url": "https://www.theyogicjournal.com/pdf/2017/vol2issue2/PartF/2-2-60-508.pdf",
+            "content": "Ronaldo and Lionel Messi 100 goals in the UEFA club competitions. Ronaldo’s 100 goals in 143 appearances for Manchester United fc and Real Madrid fc and Messi’s 100 goals in 122 appearances for fc Barcelona were delimited for this research. The following findings showed that: (1) Cristiano Ronaldo’s scoring rate was 0.70 goals per game while Lionel Messi’s was 0.82 goals per game. (2) Ronaldo scor"
+          },
+          {
+            "title": "Cristiano Ronaldo: A Comparison with Messi and Analysis of His Stats",
+            "url": "https://classicfootballshirts.se/blog/cristiano-ronaldo/",
+            "content": "Cristiano Ronaldo’s game performance is an epitome of phenomenal and consistent scoring capacity, along with the ability to break numerous records across different competitions. With him in the picture, he has a professional track record of over 700 league goals, which thus makes him a prominent goal machine in football history. In fact, Ronaldo was the first player ever to score 500 goals in the "
+          },
+          {
+            "title": "Messi vs Ronaldo EVERY Calendar Year Stats Comparison",
+            "url": "https://www.youtube.com/watch?v=oSdADiOhb4Y",
+            "content": "49. Messi provided 26 assists and Ronaldo 13. So, L Messi recorded 1.43 goal contributions per game and Cristiano Ronaldo 1.17. Let us now move on to 2019. Messi played 58 games and Ronaldo 50. Messi scored 50 goals. Ronaldo scored 39 goals. Messi provided 18 assists while Ronaldo provided four assists. So Messi recorded 1.17 goal contributions per game while Ronaldo recorded 0.86. Let us now move"
+          },
+          {
+            "title": "Messi vs Ronaldo - All Time Career Goals and Stats",
+            "url": "https://www.messivsronaldo.app/",
+            "content": "## Who has more records?\n\nIn short, Messi and Ronaldo have a similar number of records to their name. The most startling is maybe Messi's Guiness World Record for scoring 91 goals in a calendar year in 2012. To put this into context, Messi's next best is 60 and Ronaldo's best is 69. To score 91 goals in a year is other worldly.\n\nRonaldo however dominates the Champions League record books, with mos"
+          }
+        ],
+        "wikipedia_anchor": null,
+        "claims": [
+          {
+            "claim": "Cristiano Ronaldo holds the record for the most goals in UEFA Champions League knockout stages, with 67 goals.",
+            "source_title": "Cristiano Ronaldo In Ucl Knockout Stages",
+            "confidence": "high"
+          },
+          {
+            "claim": "Cristiano Ronaldo demonstrates greater efficiency in Champions League knockout games, recording a goal or assist every 92.0 minutes compared to Messi's 109.4 minutes.",
+            "source_title": "Champions League - Knockout Goals and - Stats",
+            "confidence": "high"
+          },
+          {
+            "claim": "Cristiano Ronaldo holds the record for the most goals scored in a single UEFA Champions League season, with 17 goals in 2013/14.",
+            "source_title": "Every Cristiano Ronaldo's UEFA Champions League records",
+            "confidence": "high"
+          },
+          {
+            "claim": "Cristiano Ronaldo has accumulated more assists in the Champions League knockout stage than Lionel Messi.",
+            "source_title": "Champions League - Knockout Goals and - Stats",
+            "confidence": "high"
+          },
+          {
+            "claim": "Cristiano Ronaldo holds the record for the most UEFA Champions League goals all-time, with 140 total goals.",
+            "source_title": "What UEFA records does Cristiano Ronaldo hold? | European Qualifiers",
+            "confidence": "high"
+          }
+        ]
+      }
+    }
+  ],
+  "judge": {
+    "verdict": "• PRO presented a compelling case by highlighting Messi’s superior career assist totals and playmaking influence as a defining factor for a more complete player.\n• CON effectively utilized high-stakes Champions League knockout metrics to argue for Ronaldo’s unparalleled efficiency and impact in the most competitive club environment.\n• Both debaters successfully navigated the audience injection by acknowledging the sentiment while pivoting back to objective statistical analysis, with PRO reframing the \"love\" for Messi as a reflection of his status as the most decorated player, whereas CON correctly labeled the affection as subjective emotion that does not negate raw performance data.\n\nWinner: PRO",
+    "winner": "PRO",
+    "source_critique": ""
+  },
+  "reflections": {
+    "pro": "My position remains unchanged, as the judge's verdict reinforced the analytical weight of my argument regarding Messi’s playmaking superiority and unmatched trophy cabinet.",
+    "con": "My position remains unchanged, as I stand by the objective data proving that Ronaldo’s superior efficiency and high-stakes performance in the Champions League constitute a more decisive metric for greatness than Messi’s assist totals."
+  }
+}
