@@ -2,6 +2,8 @@
 
 A real-time AI debate arena where two agents argue PRO and CON on any topic across 3 rounds, with live web research, voice narration, and a judge that delivers a final verdict.
 
+https://ilcolosseo.vercel.app/
+
 ## Stack
 
 - **Frontend**: React 19 + Vite + TailwindCSS, Liquid Glass design (Cinzel / Inter fonts)
