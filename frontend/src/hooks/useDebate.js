@@ -132,6 +132,7 @@ export function useDebate() {
   const curveballRef = useRef(null);
   const recognitionRef = useRef(null);
   const pendingActionRef = useRef(null);
+  const languageRef = useRef("en");
 
   // Process a single parsed SSE event
   async function handleEvent(event) {
@@ -329,7 +330,7 @@ export function useDebate() {
     }));
   }, []);
 
-  const start = useCallback(async (topic) => {
+  const start = useCallback(async (topic, language = "en") => {
     if (abortRef.current) abortRef.current.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -342,13 +343,14 @@ export function useDebate() {
     topicMetaRef.current = {};
     curveballRef.current = null;
     pendingActionRef.current = null;
+    languageRef.current = language;
 
     setState({ ...initialState(), status: "running" });
 
     try {
       await streamEndpoint(
         "/debate/round",
-        { topic, round_num: 1, history: [], research_log: [], topic_meta: {}, curveball: null },
+        { topic, round_num: 1, history: [], research_log: [], topic_meta: {}, curveball: null, language },
         controller.signal,
       );
       const nextAction = ROUNDS > 1 ? 2 : "judge";
@@ -383,6 +385,7 @@ export function useDebate() {
             research_log: researchLogRef.current,
             topic_meta: topicMetaRef.current,
             curveball: curveballRef.current,
+            language: languageRef.current,
           },
           controller.signal,
         );
@@ -397,6 +400,7 @@ export function useDebate() {
             research_log: researchLogRef.current,
             topic_meta: topicMetaRef.current,
             curveball: action === 3 ? curveballRef.current : null,
+            language: languageRef.current,
           },
           controller.signal,
         );
@@ -423,6 +427,7 @@ export function useDebate() {
     researchLogRef.current = [];
     topicMetaRef.current = {};
     curveballRef.current = null;
+    languageRef.current = "en";
     setState(initialState());
   }, []);
 
