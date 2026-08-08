@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: il-colosseo-backend
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: TAVILY_API_KEY
+        sync: false
+      - key: FISH_AUDIO_API
+        sync: false
+      - key: FISH_AUDIO_VOICE_PRO
+        sync: false
+      - key: FISH_AUDIO_VOICE_CON
+        sync: false
+      - key: FISH_AUDIO_VOICE_JUDGE
+        sync: false
+      - key: SARVAM_API_KEY
+        sync: false
+      - key: SARVAM_VOICE_PRO
+        value: shubh
+      - key: SARVAM_VOICE_CON
+        value: anand
+      - key: SARVAM_VOICE_JUDGE
+        value: priya
+      - key: SPEECH_EVAL_ENABLED
+        value: "true"
+      - key: DEEP_RESEARCH_ENABLED
+        value: "true"
