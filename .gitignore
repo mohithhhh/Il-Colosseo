@@ -1,0 +1,15 @@
+# Node (guard against accidental root-level installs — frontend/ has its own .gitignore)
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Env files
+.env
+.env.local
+
+# OS
+.DS_Store

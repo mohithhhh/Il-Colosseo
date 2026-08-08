@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+
+# Saved debate artifacts (see artifact_writer.py) — generated output, not source
+debates/*.json
+!debates/.gitkeep
