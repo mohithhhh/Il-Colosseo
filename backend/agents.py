@@ -11,6 +11,26 @@ PRIMARY_MODEL = "gemini-3.1-flash-lite-preview"
 FALLBACK_MODEL = "gemini-2.5-flash-lite"
 MAX_TOKENS = 150
 
+# BCP-47 codes matching Sarvam's supported TTS languages — kept in sync with tts.py
+LANGUAGE_NAMES = {
+    "hi-IN": "Hindi", "ta-IN": "Tamil", "te-IN": "Telugu", "bn-IN": "Bengali",
+    "kn-IN": "Kannada", "ml-IN": "Malayalam", "mr-IN": "Marathi", "gu-IN": "Gujarati",
+    "pa-IN": "Punjabi", "od-IN": "Odia", "en-IN": "English",
+}
+
+
+def _language_instruction(language: str) -> str:
+    """Directive appended to a system prompt to force a non-English debate language."""
+    name = LANGUAGE_NAMES.get(language)
+    if not name or language in ("en", "en-IN"):
+        return ""
+    return (
+        f" Respond entirely in {name}, written in native {name} script. "
+        "Only proper nouns or technical terms without a natural equivalent may stay in English. "
+        'Exception: if instructed to end with a literal "Winner: PRO" / "Winner: CON" / "Winner: TIE" '
+        "line, that line must stay exactly as specified, in English, unchanged."
+    )
+
 
 async def _generate(prompt: str, system: str, max_tokens: int = MAX_TOKENS):
     """Call generate_content, falling back to FALLBACK_MODEL on rate limits."""
@@ -122,6 +142,7 @@ async def argue(
     curveball: str | None = None,
     wikipedia_anchor: str | None = None,
     claims: list[dict] | None = None,
+    language: str = "en",
 ) -> str:
     """Generate a debate argument for the given agent."""
     research = research or []
@@ -137,6 +158,7 @@ async def argue(
 
     if agent_instruction:
         system += f" {agent_instruction}"
+    system += _language_instruction(language)
     if curveball and round_number == 3:
         system += (
             f'\n\nAUDIENCE CHALLENGE (you must address this directly in your argument):\n'
@@ -176,11 +198,13 @@ async def judge(
     research_log: list[dict] | None = None,
     judge_instruction: str = "",
     curveball: str | None = None,
+    language: str = "en",
 ) -> tuple[str, str]:
     """Generate the judge's verdict. Returns (verdict_text, winner_str)."""
     system = _build_judge_system()
     if judge_instruction:
         system += f" {judge_instruction}"
+    system += _language_instruction(language)
     if curveball:
         system += (
             f'\nThe audience injected this challenge before round 3: "{curveball}"\n'
@@ -230,6 +254,7 @@ async def reflect(
     topic: str,
     history: list[dict],
     verdict: str,
+    language: str = "en",
 ) -> str:
     """One-sentence honest reflection after hearing the full debate and verdict."""
     last_arg = next(
@@ -242,6 +267,7 @@ async def reflect(
         "You may fully maintain, partially concede, or completely reverse your position. "
         "Be specific and direct. No preamble, no 'I think' — just the honest sentence."
     )
+    system += _language_instruction(language)
     prompt = (
         f"Topic: {topic}\n\n"
         f"Your final argument: {last_arg}\n\n"

@@ -7,13 +7,30 @@ const PRESETS = [
   "Digital Privacy",
 ];
 
+// BCP-47 codes match Sarvam Bulbul v3's supported TTS languages (backend/tts.py).
+// "en" keeps the existing English pipeline (Fish Audio) untouched.
+export const LANGUAGES = [
+  { code: "en", label: "English" },
+  { code: "hi-IN", label: "हिन्दी" },
+  { code: "ta-IN", label: "தமிழ்" },
+  { code: "te-IN", label: "తెలుగు" },
+  { code: "bn-IN", label: "বাংলা" },
+  { code: "kn-IN", label: "ಕನ್ನಡ" },
+  { code: "ml-IN", label: "മലയാളം" },
+  { code: "mr-IN", label: "मराठी" },
+  { code: "gu-IN", label: "ગુજરાતી" },
+  { code: "pa-IN", label: "ਪੰਜਾਬੀ" },
+  { code: "od-IN", label: "ଓଡ଼ିଆ" },
+];
+
 export default function TopicInput({ onStart, disabled }) {
   const [topic, setTopic] = useState("");
+  const [language, setLanguage] = useState("en");
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const trimmed = topic.trim();
-    if (trimmed) onStart(trimmed);
+    if (trimmed) onStart(trimmed, language);
   };
 
   const handlePreset = (preset) => {
@@ -74,6 +91,40 @@ export default function TopicInput({ onStart, disabled }) {
           </button>
         ))}
       </div>
+
+      <label className="glass-pill flex items-center gap-2 px-4 py-1.5">
+        <span
+          style={{
+            fontSize: "0.62rem",
+            fontWeight: 500,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            color: "rgba(255,255,255,0.35)",
+          }}
+        >
+          Language
+        </span>
+        <select
+          value={language}
+          onChange={(e) => setLanguage(e.target.value)}
+          disabled={disabled}
+          style={{
+            background: "transparent",
+            border: "none",
+            outline: "none",
+            color: "rgba(255,255,255,0.8)",
+            fontSize: "0.78rem",
+            fontWeight: 400,
+            cursor: disabled ? "not-allowed" : "pointer",
+          }}
+        >
+          {LANGUAGES.map(({ code, label }) => (
+            <option key={code} value={code} style={{ background: "#1a1a1a", color: "#fff" }}>
+              {label}
+            </option>
+          ))}
+        </select>
+      </label>
     </div>
   );
 }

@@ -58,6 +58,7 @@ class RoundRequest(BaseModel):
     research_log: list[dict] = []
     topic_meta: dict = {}
     curveball: str | None = None
+    language: str = "en"
 
 
 class JudgeRequest(BaseModel):
@@ -66,6 +67,7 @@ class JudgeRequest(BaseModel):
     research_log: list[dict] = []
     topic_meta: dict = {}
     curveball: str | None = None
+    language: str = "en"
 
 
 async def run_round(
@@ -75,6 +77,7 @@ async def run_round(
     research_log: list[dict],
     topic_meta: dict,
     curveball: str | None = None,
+    language: str = "en",
 ) -> AsyncGenerator[str, None]:
     scores = {
         "PRO": sum(1 for h in history if h["agent"] == "PRO"),
@@ -181,6 +184,7 @@ async def run_round(
             curveball=curveball,
             wikipedia_anchor=wiki,
             claims=claims,
+            language=language,
         )
 
         # Speech eval — single retry on failure
@@ -194,6 +198,7 @@ async def run_round(
                 curveball=curveball,
                 wikipedia_anchor=wiki,
                 claims=claims,
+                language=language,
             )
 
         if agent == "PRO":
@@ -202,7 +207,7 @@ async def run_round(
         scores[agent] += 1
         history = history + [{"agent": agent, "round": round_num, "text": text}]
 
-        audio_b64 = await synthesize(text, agent)
+        audio_b64 = await synthesize(text, agent, language)
         yield sse_event({
             "type": "speech",
             "agent": agent,
@@ -239,14 +244,16 @@ async def run_judge(
     research_log: list[dict],
     topic_meta: dict,
     curveball: str | None = None,
+    language: str = "en",
 ) -> AsyncGenerator[str, None]:
     verdict_text, winner = await judge(
         topic, history, research_log,
         judge_instruction=topic_meta.get("judge_instruction", ""),
         curveball=curveball,
+        language=language,
     )
 
-    judge_audio = await synthesize(verdict_text, "JUDGE")
+    judge_audio = await synthesize(verdict_text, "JUDGE", language)
     yield sse_event({
         "type": "speech",
         "agent": "JUDGE",
@@ -259,9 +266,9 @@ async def run_judge(
 
     reflections_collected: dict[str, str] = {}
     for agent in ("PRO", "CON"):
-        reflection_text = await reflect(agent, topic, history, verdict_text)
+        reflection_text = await reflect(agent, topic, history, verdict_text, language=language)
         reflections_collected[agent.lower()] = reflection_text
-        reflection_audio = await synthesize(reflection_text, agent)
+        reflection_audio = await synthesize(reflection_text, agent, language)
         yield sse_event({
             "type": "reflection",
             "agent": agent,
@@ -318,7 +325,7 @@ async def round_endpoint(body: RoundRequest, request: Request):
 
     async def stream() -> AsyncGenerator[bytes, None]:
         async for chunk in run_round(
-            body.topic, body.round_num, body.history, body.research_log, topic_meta, curveball
+            body.topic, body.round_num, body.history, body.research_log, topic_meta, curveball, body.language
         ):
             if await request.is_disconnected():
                 break
@@ -341,7 +348,7 @@ async def judge_endpoint(body: JudgeRequest, request: Request):
 
     async def stream() -> AsyncGenerator[bytes, None]:
         async for chunk in run_judge(
-            body.topic, body.history, body.research_log, body.topic_meta, curveball
+            body.topic, body.history, body.research_log, body.topic_meta, curveball, body.language
         ):
             if await request.is_disconnected():
                 break

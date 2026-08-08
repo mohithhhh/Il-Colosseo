@@ -5,8 +5,8 @@ A real-time AI debate arena where two agents argue PRO and CON on any topic acro
 ## Stack
 
 - **Frontend**: React 19 + Vite + TailwindCSS, Liquid Glass design (Cinzel / Inter fonts)
-- **Backend**: FastAPI + Gemini AI + Tavily search + Fish Audio TTS, SSE streaming
-- **TTS**: Fish Audio S2 Pro → Web Speech API (browser fallback)
+- **Backend**: FastAPI + Gemini AI + Tavily search + Fish Audio / Sarvam TTS, SSE streaming
+- **TTS**: Fish Audio S2 Pro (English) or Sarvam Bulbul v3 (Indian languages) → Web Speech API (browser fallback)
 
 ## Agents
 
@@ -41,6 +41,25 @@ Five research levels run on every agent turn, controlled by `DEEP_RESEARCH_ENABL
 
 Levels 2–5 are skipped when `DEEP_RESEARCH_ENABLED=false` (falls back to a single heuristic query per agent).
 
+## Multilingual Debates
+
+Pick a language on the landing page before starting a debate. English keeps the existing Gemini + Fish Audio pipeline untouched. Any of the 10 Indian languages below routes the *entire* debate — PRO, CON, and the Judge's verdict and reflections — through Gemini in that language, and switches TTS to Sarvam's Bulbul v3 model:
+
+| Language | Code |
+|---|---|
+| Hindi | `hi-IN` |
+| Tamil | `ta-IN` |
+| Telugu | `te-IN` |
+| Bengali | `bn-IN` |
+| Kannada | `kn-IN` |
+| Malayalam | `ml-IN` |
+| Marathi | `mr-IN` |
+| Gujarati | `gu-IN` |
+| Punjabi | `pa-IN` |
+| Odia | `od-IN` |
+
+Requires `SARVAM_API_KEY`. Without it, non-English debates still run (Gemini argues in the chosen language) but TTS falls back to Web Speech API, whose voice quality for Indian languages varies by browser/OS.
+
 ## Audience Curveball
 
 After Round 2 the arena pauses and opens a microphone + text input. The audience can issue a challenge that both agents must address in Round 3. Voice input is transcribed via the Web Speech API.
@@ -59,11 +78,17 @@ Edit `.env`:
 GEMINI_API_KEY=your_gemini_api_key
 TAVILY_API_KEY=your_tavily_api_key
 
-# Optional — Fish Audio TTS (falls back to Web Speech API if omitted or balance is zero)
+# Optional — Fish Audio TTS for English debates (falls back to Web Speech API if omitted or balance is zero)
 FISH_AUDIO_API=your_fish_audio_key
 FISH_AUDIO_VOICE_PRO=voice_reference_id
 FISH_AUDIO_VOICE_CON=voice_reference_id
 FISH_AUDIO_VOICE_JUDGE=voice_reference_id
+
+# Optional — Sarvam Bulbul v3 TTS, used automatically for non-English debates
+SARVAM_API_KEY=your_sarvam_api_key
+SARVAM_VOICE_PRO=shubh
+SARVAM_VOICE_CON=anand
+SARVAM_VOICE_JUDGE=priya
 
 # Optional — set to false to skip speech quality checks (faster, lower latency)
 SPEECH_EVAL_ENABLED=true
@@ -114,13 +139,13 @@ Optionally set `VITE_API_URL` in `frontend/.env` to point at a remote backend (d
 
 **`/debate/round` request body**
 ```json
-{ "topic": "string", "round_num": 1, "history": [], "research_log": [], "topic_meta": {}, "curveball": null }
+{ "topic": "string", "round_num": 1, "history": [], "research_log": [], "topic_meta": {}, "curveball": null, "language": "en" }
 ```
 Emits `warning` (optional), `researching`, `speech`, `round_complete` (with updated `history`, `research_log`, `topic_meta`), and `awaiting_curveball` (after round 2) SSE events, then `[DONE]`.
 
 **`/debate/judge` request body**
 ```json
-{ "topic": "string", "history": [...], "research_log": [...], "topic_meta": {...}, "curveball": null }
+{ "topic": "string", "history": [...], "research_log": [...], "topic_meta": {...}, "curveball": null, "language": "en" }
 ```
 Emits `speech` (JUDGE), `reflection` (×2), and `artifact_saved` SSE events, then `[DONE]`.
 
