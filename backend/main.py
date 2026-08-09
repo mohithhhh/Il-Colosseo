@@ -18,6 +18,7 @@ from classifier import classify_topic
 from integrity_gate import check_sources
 from speech_eval import evaluate_speech
 from artifact_writer import write_artifact
+import vector_store
 
 load_dotenv(find_dotenv())
 
@@ -88,6 +89,7 @@ async def run_round(
     search_strategy = topic_meta.get("search_strategy", "")
     agent_instruction = topic_meta.get("agent_instruction", "")
     wiki: str | None = topic_meta.get("wikipedia_anchor")
+    memory: list[dict] = topic_meta.get("memory", [])
 
     for agent in ("PRO", "CON"):
         prior_speech = next(
@@ -95,14 +97,15 @@ async def run_round(
             None,
         )
 
-        # ── Generate queries (+ wikipedia_anchor in parallel for round 1 PRO) ──
+        # ── Generate queries (+ wikipedia_anchor + vector memory in parallel for round 1 PRO) ──
         if agent == "PRO":
             if round_num == 1 and DEEP_RESEARCH:
-                queries, wiki = await asyncio.gather(
+                queries, wiki, memory = await asyncio.gather(
                     generate_pro_queries(topic, history, topic_meta, curveball, round_num),
                     research_module.wikipedia_anchor(topic),
+                    vector_store.query_memory(topic),
                 )
-                topic_meta = {**topic_meta, "wikipedia_anchor": wiki}
+                topic_meta = {**topic_meta, "wikipedia_anchor": wiki, "memory": memory}
             else:
                 queries = await generate_pro_queries(topic, history, topic_meta, curveball, round_num)
         else:
@@ -184,6 +187,7 @@ async def run_round(
             curveball=curveball,
             wikipedia_anchor=wiki,
             claims=claims,
+            memory=memory,
             language=language,
         )
 
@@ -198,6 +202,7 @@ async def run_round(
                 curveball=curveball,
                 wikipedia_anchor=wiki,
                 claims=claims,
+                memory=memory,
                 language=language,
             )
 
@@ -251,6 +256,7 @@ async def run_judge(
         topic, history, research_log,
         judge_instruction=topic_meta.get("judge_instruction", ""),
         curveball=curveball,
+        memory=topic_meta.get("memory", []),
         language=language,
     )
 
@@ -311,6 +317,10 @@ async def run_judge(
 
     filepath = await write_artifact(debate_artifact)
     yield sse_event({"type": "artifact_saved", "filepath": filepath, "topic": topic})
+
+    # Index into vector memory so future related debates can recall this verdict.
+    # Fails open internally — never blocks or breaks the response.
+    await vector_store.index_debate(debate_artifact)
 
     yield "data: [DONE]\n\n"
 
