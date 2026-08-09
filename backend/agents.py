@@ -89,6 +89,20 @@ def _build_judge_system() -> str:
     )
 
 
+def _memory_block(memory: list[dict] | None) -> str:
+    """Precedent block — related debates the arena has already held, from vector memory."""
+    if not memory:
+        return ""
+    block = (
+        "\n\n[ARENA MEMORY — related debates held previously]\n"
+        "These are past verdicts on related topics. You may cite them as precedent if it "
+        "strengthens your argument, but this is a new debate — do not just repeat old arguments.\n"
+    )
+    for i, m in enumerate(memory[:3], 1):
+        block += f"{i}. \"{m.get('topic', '')}\" — {m.get('winner', '')} won. {m.get('verdict', '')[:200]}\n"
+    return block
+
+
 def _research_block(
     research: list[dict],
     wikipedia_anchor: str | None = None,
@@ -140,6 +154,7 @@ async def argue(
     curveball: str | None = None,
     wikipedia_anchor: str | None = None,
     claims: list[dict] | None = None,
+    memory: list[dict] | None = None,
     language: str = "en",
 ) -> tuple[str, list[dict]]:
     """Generate a debate argument for the given agent. Returns (text, citations)."""
@@ -154,6 +169,7 @@ async def argue(
     else:
         raise ValueError(f"Unknown agent: {agent}")
 
+    system += _memory_block(memory)
     if agent_instruction:
         system += f" {agent_instruction}"
     system += _language_instruction(language)
@@ -195,10 +211,12 @@ async def judge(
     research_log: list[dict] | None = None,
     judge_instruction: str = "",
     curveball: str | None = None,
+    memory: list[dict] | None = None,
     language: str = "en",
 ) -> tuple[str, str, list[dict]]:
     """Generate the judge's verdict. Returns (verdict_text, winner_str, citations)."""
     system = _build_judge_system()
+    system += _memory_block(memory)
     if judge_instruction:
         system += f" {judge_instruction}"
     system += _language_instruction(language)
