@@ -1,14 +1,16 @@
 import json
+import base64
 import asyncio
 import os
 from datetime import datetime
 from typing import AsyncGenerator
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from dotenv import load_dotenv, find_dotenv
+from google.genai import types as genai_types
 
 from agents import argue, judge, reflect
 import research as research_module
@@ -19,6 +21,7 @@ from integrity_gate import check_sources
 from speech_eval import evaluate_speech
 from artifact_writer import write_artifact
 import vector_store
+import live
 
 load_dotenv(find_dotenv())
 
@@ -380,3 +383,96 @@ async def judge_endpoint(body: JudgeRequest, request: Request):
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+
+@app.websocket("/live/{agent}")
+async def live_endpoint(websocket: WebSocket, agent: str):
+    """Real-time voice conversation with a debate agent — additive "Enter the Arena"
+    mode, separate from the scripted PRO/CON/JUDGE SSE debate flow above.
+
+    Client protocol (JSON text frames):
+      -> {"type": "audio", "data": "<base64 pcm16 16kHz>"}   mic chunk
+      -> {"type": "stop"}                                     end the session
+      <- {"type": "ready"}
+      <- {"type": "audio", "data": "<base64 pcm16 24kHz>"}    agent speech chunk
+      <- {"type": "transcript", "role": "user"|"agent", "text": "..."}
+      <- {"type": "interrupted"}                              user barged in, stop playback
+      <- {"type": "turn_complete"}
+      <- {"type": "error", "message": "..."}
+    """
+    agent = agent.upper()
+    await websocket.accept()
+
+    if agent not in ("PRO", "CON", "JUDGE"):
+        await websocket.send_json({"type": "error", "message": f"Unknown agent: {agent}"})
+        await websocket.close()
+        return
+
+    if not live.LIVE_ENABLED or not os.getenv("GEMINI_API_KEY"):
+        await websocket.send_json({"type": "error", "message": "Live voice is not available right now."})
+        await websocket.close()
+        return
+
+    topic = websocket.query_params.get("topic")
+
+    async def relay_client_to_gemini(session):
+        while True:
+            msg = await websocket.receive_json()
+            msg_type = msg.get("type")
+            if msg_type == "audio":
+                audio_bytes = base64.b64decode(msg["data"])
+                await session.send_realtime_input(
+                    audio=genai_types.Blob(data=audio_bytes, mime_type=live.INPUT_MIME)
+                )
+            elif msg_type == "stop":
+                break
+
+    async def relay_gemini_to_client(session):
+        async for response in session.receive():
+            sc = response.server_content
+            if not sc:
+                continue
+            if sc.interrupted:
+                await websocket.send_json({"type": "interrupted"})
+            if sc.model_turn:
+                for part in sc.model_turn.parts:
+                    if part.inline_data and part.inline_data.data:
+                        await websocket.send_json({
+                            "type": "audio",
+                            "data": base64.b64encode(part.inline_data.data).decode(),
+                        })
+            if sc.output_transcription and sc.output_transcription.text:
+                await websocket.send_json({
+                    "type": "transcript", "role": "agent", "text": sc.output_transcription.text,
+                })
+            if sc.input_transcription and sc.input_transcription.text:
+                await websocket.send_json({
+                    "type": "transcript", "role": "user", "text": sc.input_transcription.text,
+                })
+            if sc.turn_complete:
+                await websocket.send_json({"type": "turn_complete"})
+
+    try:
+        async with live.connect(agent, topic) as session:
+            await websocket.send_json({"type": "ready"})
+            client_task = asyncio.create_task(relay_client_to_gemini(session))
+            gemini_task = asyncio.create_task(relay_gemini_to_client(session))
+            done, pending = await asyncio.wait(
+                {client_task, gemini_task}, return_when=asyncio.FIRST_COMPLETED
+            )
+            for task in pending:
+                task.cancel()
+            for task in done:
+                task.exception()  # surface (and swallow) so it isn't logged as unretrieved
+    except WebSocketDisconnect:
+        pass
+    except Exception as e:
+        try:
+            await websocket.send_json({"type": "error", "message": str(e)[:200]})
+        except Exception:
+            pass
+    finally:
+        try:
+            await websocket.close()
+        except Exception:
+            pass
