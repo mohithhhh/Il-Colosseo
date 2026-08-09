@@ -177,7 +177,7 @@ async def run_round(
             "claims": claims,
         })
 
-        text = await argue(
+        text, citations = await argue(
             agent, topic, round_num, history,
             research=sources,
             agent_instruction=agent_instruction,
@@ -190,7 +190,7 @@ async def run_round(
         # Speech eval — single retry on failure
         eval_result = await evaluate_speech(text, agent, round_num, prior_speech)
         if not eval_result.get("pass", True):
-            text = await argue(
+            text, citations = await argue(
                 agent, topic, round_num, history,
                 research=sources,
                 agent_instruction=agent_instruction,
@@ -216,6 +216,7 @@ async def run_round(
             "audio": audio_b64,
             "score": scores[agent],
             "winner": None,
+            "citations": citations,
         })
 
         await asyncio.sleep(0.1)
@@ -246,7 +247,7 @@ async def run_judge(
     curveball: str | None = None,
     language: str = "en",
 ) -> AsyncGenerator[str, None]:
-    verdict_text, winner = await judge(
+    verdict_text, winner, citations = await judge(
         topic, history, research_log,
         judge_instruction=topic_meta.get("judge_instruction", ""),
         curveball=curveball,
@@ -262,6 +263,7 @@ async def run_judge(
         "audio": judge_audio,
         "score": None,
         "winner": winner,
+        "citations": citations,
     })
 
     reflections_collected: dict[str, str] = {}

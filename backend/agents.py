@@ -1,15 +1,9 @@
 import os
-import google.generativeai as genai
-from google.api_core.exceptions import ResourceExhausted
-from dotenv import load_dotenv, find_dotenv
 
-load_dotenv(find_dotenv())
+import gemini_client
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY", ""))
-
-PRIMARY_MODEL = "gemini-3.1-flash-lite-preview"
-FALLBACK_MODEL = "gemini-2.5-flash-lite"
 MAX_TOKENS = 150
+GROUNDING_ENABLED = os.getenv("GROUNDING_ENABLED", "true").lower() != "false"
 
 # BCP-47 codes matching Sarvam's supported TTS languages — kept in sync with tts.py
 LANGUAGE_NAMES = {
@@ -32,19 +26,23 @@ def _language_instruction(language: str) -> str:
     )
 
 
-async def _generate(prompt: str, system: str, max_tokens: int = MAX_TOKENS):
+async def _generate(prompt: str, system: str, max_tokens: int = MAX_TOKENS, tools: list | None = None):
     """Call generate_content, falling back to FALLBACK_MODEL on rate limits."""
-    for model_name in (PRIMARY_MODEL, FALLBACK_MODEL):
-        model = genai.GenerativeModel(
-            model_name=model_name,
-            system_instruction=system,
-            generation_config=genai.types.GenerationConfig(max_output_tokens=max_tokens),
-        )
+    return await gemini_client.generate(prompt, system, max_tokens, tools=tools)
+
+
+async def _generate_with_citations(prompt: str, system: str, max_tokens: int = MAX_TOKENS) -> tuple[str, list[dict]]:
+    """Try a grounded (Google Search) call first so real, live citations back the argument.
+    Falls back to a plain call on any failure — rate limit, quota, unsupported tool — so
+    the debate never breaks just because grounding isn't available."""
+    if GROUNDING_ENABLED:
         try:
-            return model.generate_content(prompt)
-        except ResourceExhausted:
-            if model_name == FALLBACK_MODEL:
-                raise
+            response = await _generate(prompt, system, max_tokens, tools=gemini_client.google_search_tool())
+            return response.text.strip(), gemini_client.extract_citations(response)
+        except Exception:
+            pass
+    response = await _generate(prompt, system, max_tokens)
+    return response.text.strip(), []
 
 
 def _build_pro_system(
@@ -143,8 +141,8 @@ async def argue(
     wikipedia_anchor: str | None = None,
     claims: list[dict] | None = None,
     language: str = "en",
-) -> str:
-    """Generate a debate argument for the given agent."""
+) -> tuple[str, list[dict]]:
+    """Generate a debate argument for the given agent. Returns (text, citations)."""
     research = research or []
 
     if agent == "PRO":
@@ -188,8 +186,7 @@ async def argue(
             f"This is Round 1 of 3. Deliver your opening argument as the {role_label}."
         )
 
-    response = await _generate(prompt, system)
-    return response.text.strip()
+    return await _generate_with_citations(prompt, system)
 
 
 async def judge(
@@ -199,8 +196,8 @@ async def judge(
     judge_instruction: str = "",
     curveball: str | None = None,
     language: str = "en",
-) -> tuple[str, str]:
-    """Generate the judge's verdict. Returns (verdict_text, winner_str)."""
+) -> tuple[str, str, list[dict]]:
+    """Generate the judge's verdict. Returns (verdict_text, winner_str, citations)."""
     system = _build_judge_system()
     if judge_instruction:
         system += f" {judge_instruction}"
@@ -234,8 +231,7 @@ async def judge(
     context_lines.append("")
     context_lines.append("Deliver your verdict.")
 
-    response = await _generate("\n".join(context_lines), system)
-    verdict_text = response.text.strip()
+    verdict_text, citations = await _generate_with_citations("\n".join(context_lines), system)
 
     winner = "TIE"
     for line in reversed(verdict_text.splitlines()):
@@ -246,7 +242,7 @@ async def judge(
                 winner = candidate
             break
 
-    return verdict_text, winner
+    return verdict_text, winner, citations
 
 
 async def reflect(

@@ -34,6 +34,14 @@ async function playAudio(base64, text, agent) {
 
 const emptyAgent = () => ({ text: "", displayText: "", score: 0, research: null, sources: [] });
 
+// Merge Gemini grounding citations into the Tavily research sources list, deduping by url.
+const mergeSources = (existing, citations) => {
+  if (!citations || citations.length === 0) return existing;
+  const seen = new Set((existing || []).map((s) => s.url));
+  const fresh = citations.filter((c) => c.url && !seen.has(c.url));
+  return [...(existing || []), ...fresh];
+};
+
 const initialState = () => ({
   status: "idle",           // idle | running | waiting | complete
   pendingAction: null,      // null | 2 | 3 | "judge"
@@ -175,10 +183,10 @@ export function useDebate() {
     }
 
     if (type === "speech") {
-      const { round, text, audio, score, winner } = event;
+      const { round, text, audio, score, winner, citations } = event;
 
       if (agentKey === "JUDGE") {
-        setState((s) => ({ ...s, judge: { text, displayText: "", winner } }));
+        setState((s) => ({ ...s, judge: { text, displayText: "", winner, citations: citations ?? [] } }));
         await Promise.all([
           streamWords(text, (display) =>
             setState((s) => ({ ...s, judge: { ...s.judge, displayText: display } }))
@@ -189,17 +197,19 @@ export function useDebate() {
         setState((s) => {
           const exists = s.rounds.some((r) => r.round === round);
           if (exists) {
+            const prevAgent = s.rounds.find((r) => r.round === round)[agentKey];
             return {
               ...s,
               rounds: updateRoundAgent(s.rounds, round, agentKey, {
                 text,
                 displayText: "",
-                score: score ?? s.rounds.find((r) => r.round === round)[agentKey].score,
+                score: score ?? prevAgent.score,
+                sources: mergeSources(prevAgent.sources, citations),
               }),
             };
           }
           const newRound = { round, PRO: emptyAgent(), CON: emptyAgent() };
-          newRound[agentKey] = { text, displayText: "", score: score ?? 0, research: null };
+          newRound[agentKey] = { text, displayText: "", score: score ?? 0, research: null, sources: mergeSources([], citations) };
           return { ...s, rounds: [...s.rounds, newRound] };
         });
         await Promise.all([

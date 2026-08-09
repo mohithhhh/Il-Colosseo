@@ -2,17 +2,13 @@ import re
 import json
 import os
 
-import google.generativeai as genai
-from google.api_core.exceptions import ResourceExhausted
 from dotenv import load_dotenv, find_dotenv
+
+import gemini_client
 
 load_dotenv(find_dotenv())
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY", ""))
 DEEP_RESEARCH_ENABLED = os.getenv("DEEP_RESEARCH_ENABLED", "true").lower() != "false"
-
-_PRIMARY_MODEL = "gemini-3.1-flash-lite-preview"
-_FALLBACK_MODEL = "gemini-2.5-flash-lite"
 
 
 def _clean(text: str) -> str:
@@ -59,26 +55,17 @@ def _fallback_con_query(
 
 async def _llm_queries(prompt: str, system: str) -> list[str] | None:
     """Call Gemini to generate 3 queries. Returns list or None on failure."""
-    for model_name in (_PRIMARY_MODEL, _FALLBACK_MODEL):
-        try:
-            model = genai.GenerativeModel(
-                model_name=model_name,
-                system_instruction=system,
-                generation_config=genai.types.GenerationConfig(max_output_tokens=200),
-            )
-            result = model.generate_content(prompt)
-            raw = result.text.strip()
-            raw = re.sub(r"^```(?:json)?\s*", "", raw).rstrip("`").strip()
-            data = json.loads(raw)
-            queries = data.get("queries", [])
-            if isinstance(queries, list) and queries:
-                return [str(q) for q in queries[:3]]
-        except ResourceExhausted:
-            if model_name == _FALLBACK_MODEL:
-                return None
-        except Exception:
-            return None
-    return None
+    try:
+        result = await gemini_client.generate(prompt, system, max_tokens=200)
+        raw = result.text.strip()
+        raw = re.sub(r"^```(?:json)?\s*", "", raw).rstrip("`").strip()
+        data = json.loads(raw)
+        queries = data.get("queries", [])
+        if isinstance(queries, list) and queries:
+            return [str(q) for q in queries[:3]]
+        return None
+    except Exception:
+        return None
 
 
 async def generate_pro_queries(
