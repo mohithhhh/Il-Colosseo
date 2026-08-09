@@ -4,19 +4,15 @@ import json
 from urllib.parse import quote
 
 import httpx
-import google.generativeai as genai
-from google.api_core.exceptions import ResourceExhausted
 from dotenv import load_dotenv, find_dotenv
+
+import gemini_client
 
 load_dotenv(find_dotenv())
 
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY", "")
 TAVILY_URL = "https://api.tavily.com/search"
 DEEP_RESEARCH_ENABLED = os.getenv("DEEP_RESEARCH_ENABLED", "true").lower() != "false"
-
-genai.configure(api_key=os.getenv("GEMINI_API_KEY", ""))
-_PRIMARY_MODEL = "gemini-3.1-flash-lite-preview"
-_FALLBACK_MODEL = "gemini-2.5-flash-lite"
 
 _SKIP_DOMAINS = (
     "reddit.com", "twitter.com", "x.com", "facebook.com",
@@ -117,21 +113,11 @@ async def wikipedia_anchor(topic: str) -> str | None:
 
 async def _gemini_call(prompt: str, system: str, max_tokens: int = 600) -> str | None:
     """Single Gemini call returning text or None on failure."""
-    for model_name in (_PRIMARY_MODEL, _FALLBACK_MODEL):
-        try:
-            model = genai.GenerativeModel(
-                model_name=model_name,
-                system_instruction=system,
-                generation_config=genai.types.GenerationConfig(max_output_tokens=max_tokens),
-            )
-            result = model.generate_content(prompt)
-            return result.text.strip()
-        except ResourceExhausted:
-            if model_name == _FALLBACK_MODEL:
-                return None
-        except Exception:
-            return None
-    return None
+    try:
+        result = await gemini_client.generate(prompt, system, max_tokens)
+        return result.text.strip()
+    except Exception:
+        return None
 
 
 async def extract_claims(

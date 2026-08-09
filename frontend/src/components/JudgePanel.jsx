@@ -67,6 +67,36 @@ export default function JudgePanel({ data, curveball }) {
         )}
       </div>
 
+      {/* Grounding citations */}
+      {data.citations && data.citations.length > 0 && (
+        <div style={{ marginTop: "14px", display: "flex", flexWrap: "wrap", gap: "6px" }}>
+          {data.citations.map((c, i) => (
+            <a
+              key={i}
+              href={c.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                fontSize: "0.68rem",
+                fontWeight: 400,
+                color: "rgba(255,255,255,0.4)",
+                textDecoration: "none",
+                padding: "4px 9px",
+                background: "rgba(255,255,255,0.05)",
+                borderRadius: "8px",
+                border: "1px solid rgba(255,255,255,0.1)",
+                letterSpacing: "0.02em",
+                transition: "color 0.15s",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.75)")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.4)")}
+            >
+              {c.title || c.domain || c.url}
+            </a>
+          ))}
+        </div>
+      )}
+
       {/* Audience challenge section */}
       {curveball && (
         <div style={{ marginTop: "16px" }}>
