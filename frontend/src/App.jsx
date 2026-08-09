@@ -5,6 +5,7 @@ import RoundRow from "./components/RoundRow";
 import JudgePanel from "./components/JudgePanel";
 import ReflectionCard from "./components/ReflectionCard";
 import CurveballPanel from "./components/CurveballPanel";
+import LiveArenaPanel from "./components/LiveArenaPanel";
 const BG = "url('/bg.png')";
 const SCRIM_LANDING = "rgba(8, 8, 12, 0.55)";
 const SCRIM_ARENA = "rgba(8, 8, 12, 0.80)";
@@ -19,6 +20,13 @@ export default function App() {
   } = state;
   const scrollRef = useRef(null);
   const [dismissedWarnings, setDismissedWarnings] = useState([]);
+  const [liveTopic, setLiveTopic] = useState("");
+  const [showLive, setShowLive] = useState(false);
+
+  const handleStart = (topic, language) => {
+    setLiveTopic(topic);
+    start(topic, language);
+  };
 
   const isIdle = status === "idle";
   const showJudge = !isIdle && judge.text !== "";
@@ -93,7 +101,7 @@ export default function App() {
           >
             Built for gladiators. Rebuilt for intelligence.
           </p>
-          <TopicInput onStart={start} disabled={false} />
+          <TopicInput onStart={handleStart} disabled={false} />
           {error && (
             <p
               style={{
@@ -106,7 +114,15 @@ export default function App() {
               {error}
             </p>
           )}
+          <button
+            onClick={() => setShowLive(true)}
+            className="glass-pill px-4 py-2 text-white/60 text-xs"
+            style={{ fontWeight: 500, cursor: "pointer", fontSize: "0.72rem" }}
+          >
+            🎙️ Enter the Arena
+          </button>
         </div>
+        {showLive && <LiveArenaPanel topic={liveTopic} onClose={() => setShowLive(false)} />}
       </div>
     );
   }
@@ -169,7 +185,15 @@ export default function App() {
           >
             Reset
           </button>
+          <button
+            onClick={() => setShowLive(true)}
+            className="glass-pill px-3 py-1 text-white/40 text-xs"
+            style={{ fontWeight: 500, cursor: "pointer", fontSize: "0.72rem" }}
+          >
+            🎙️ Enter the Arena
+          </button>
         </div>
+        {showLive && <LiveArenaPanel topic={liveTopic} onClose={() => setShowLive(false)} />}
 
         {/* Warning banners — dismissible frosted glass */}
         {activeWarnings.length > 0 && (
