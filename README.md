@@ -1,6 +1,6 @@
 # Il Colosseo — Multi-Agent Debate Arena
 
-A real-time AI debate arena where two agents argue PRO and CON on any topic across 3 rounds, with live web research, voice narration, and a judge that delivers a final verdict.
+A real-time AI debate arena where two agents argue PRO (maximus) and CON (nexus) on any topic across 3 rounds, with live web research, voice narration, and a judge that delivers a final verdict.
 
 https://ilcolosseo.vercel.app/
 
