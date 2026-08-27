@@ -217,3 +217,6 @@ With `DEEP_RESEARCH_ENABLED=true` (default):
 | **Full debate** | **18** | **19** | **~37** |
 
 With `DEEP_RESEARCH_ENABLED=false`: 6 Tavily calls total (1 per agent per round).
+
+
+
