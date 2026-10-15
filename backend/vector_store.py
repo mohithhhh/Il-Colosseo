@@ -27,37 +27,55 @@ PINECONE_REGION = os.getenv("PINECONE_REGION", "us-east-1")
 EMBED_MODEL = "gemini-embedding-001"
 EMBED_DIM = 768
 
+# Hard ceiling on how long a memory lookup may delay a debate round.
+QUERY_TIMEOUT_S = 2.5
+
 _index = None
-_index_lock = asyncio.Lock()
+_connecting: asyncio.Task | None = None
+
+
+async def _connect():
+    global _index, _connecting
+    try:
+        def _blocking_connect():
+            from pinecone import Pinecone, ServerlessSpec
+            pc = Pinecone(api_key=PINECONE_API_KEY)
+            if not pc.has_index(INDEX_NAME):
+                pc.create_index(
+                    name=INDEX_NAME,
+                    dimension=EMBED_DIM,
+                    metric="cosine",
+                    spec=ServerlessSpec(cloud=PINECONE_CLOUD, region=PINECONE_REGION),
+                )
+            return pc.Index(INDEX_NAME)
+
+        _index = await asyncio.to_thread(_blocking_connect)
+    except Exception:
+        _index = None
+    finally:
+        _connecting = None  # allow a retry on the next call if this attempt failed
+    return _index
 
 
 async def _get_index():
-    """Lazily connect to (and create if missing) the Pinecone index. None if unavailable."""
-    global _index
+    """Lazily connect to (and create if missing) the Pinecone index. None if unavailable.
+
+    The connect runs as one shared task: a caller that times out waiting on it (see
+    query_memory) doesn't cancel the connect, and concurrent callers don't start a second one.
+    """
+    global _connecting
     if _index is not None:
         return _index
     if not VECTOR_MEMORY_ENABLED or not PINECONE_API_KEY:
         return None
-    async with _index_lock:
-        if _index is not None:
-            return _index
-        try:
-            def _connect():
-                from pinecone import Pinecone, ServerlessSpec
-                pc = Pinecone(api_key=PINECONE_API_KEY)
-                if not pc.has_index(INDEX_NAME):
-                    pc.create_index(
-                        name=INDEX_NAME,
-                        dimension=EMBED_DIM,
-                        metric="cosine",
-                        spec=ServerlessSpec(cloud=PINECONE_CLOUD, region=PINECONE_REGION),
-                    )
-                return pc.Index(INDEX_NAME)
+    if _connecting is None:
+        _connecting = asyncio.create_task(_connect())
+    return await asyncio.shield(_connecting)
 
-            _index = await asyncio.to_thread(_connect)
-        except Exception:
-            _index = None
-        return _index
+
+async def warm_up() -> None:
+    """Connect at server startup so the first debate doesn't pay the connect cost."""
+    await _get_index()
 
 
 async def _embed(text: str, task_type: str) -> list[float] | None:
@@ -117,8 +135,16 @@ async def index_debate(debate: dict) -> None:
 
 async def query_memory(topic: str, top_k: int = 3, min_score: float = 0.72) -> list[dict]:
     """Return up to `top_k` past debates related to `topic`, above a similarity floor.
-    Empty list if memory is disabled, unavailable, or nothing relevant exists yet.
+    Empty list if memory is disabled, unavailable, slow (QUERY_TIMEOUT_S), or nothing
+    relevant exists yet — memory is an enhancer and must never hold up a round.
     """
+    try:
+        return await asyncio.wait_for(_query_memory(topic, top_k, min_score), QUERY_TIMEOUT_S)
+    except asyncio.TimeoutError:
+        return []
+
+
+async def _query_memory(topic: str, top_k: int, min_score: float) -> list[dict]:
     index = await _get_index()
     if index is None:
         return []

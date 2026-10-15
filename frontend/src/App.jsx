@@ -6,7 +6,7 @@ import JudgePanel from "./components/JudgePanel";
 import ReflectionCard from "./components/ReflectionCard";
 import CurveballPanel from "./components/CurveballPanel";
 import LiveArenaPanel from "./components/LiveArenaPanel";
-const BG = "url('/bg.png')";
+const BG = "url('/bg.webp')";
 const SCRIM_LANDING = "rgba(8, 8, 12, 0.55)";
 const SCRIM_ARENA = "rgba(8, 8, 12, 0.80)";
 

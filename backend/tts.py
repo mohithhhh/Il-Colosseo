@@ -1,8 +1,9 @@
 import os
 import base64
 import msgpack
-import httpx
 from dotenv import load_dotenv, find_dotenv
+
+import http_client
 
 load_dotenv(find_dotenv())
 
@@ -56,19 +57,19 @@ async def _synthesize_fish(text: str, agent: str) -> str:
         payload["reference_id"] = reference_id
 
     try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            response = await client.post(
-                "https://api.fish.audio/v1/tts",
-                content=msgpack.packb(payload),
-                headers={
-                    "Authorization": f"Bearer {FISH_AUDIO_API_KEY}",
-                    "Content-Type": "application/msgpack",
-                    "model": "s2-pro",
-                },
-            )
-            if response.status_code == 200:
-                return base64.b64encode(response.content).decode()
-            print(f"[TTS] Fish Audio error {response.status_code}: {response.text[:200]}")
+        response = await http_client.client.post(
+            "https://api.fish.audio/v1/tts",
+            content=msgpack.packb(payload),
+            headers={
+                "Authorization": f"Bearer {FISH_AUDIO_API_KEY}",
+                "Content-Type": "application/msgpack",
+                "model": "s2-pro",
+            },
+            timeout=30.0,
+        )
+        if response.status_code == 200:
+            return base64.b64encode(response.content).decode()
+        print(f"[TTS] Fish Audio error {response.status_code}: {response.text[:200]}")
     except Exception as e:
         print(f"[TTS] Fish Audio exception: {e}")
     return ""
@@ -88,20 +89,20 @@ async def _synthesize_sarvam(text: str, agent: str, language: str) -> str:
     }
 
     try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            response = await client.post(
-                "https://api.sarvam.ai/text-to-speech",
-                json=payload,
-                headers={
-                    "api-subscription-key": SARVAM_API_KEY,
-                    "Content-Type": "application/json",
-                },
-            )
-            if response.status_code == 200:
-                audios = response.json().get("audios") or []
-                if audios:
-                    return audios[0]  # already base64-encoded
-            print(f"[TTS] Sarvam error {response.status_code}: {response.text[:200]}")
+        response = await http_client.client.post(
+            "https://api.sarvam.ai/text-to-speech",
+            json=payload,
+            headers={
+                "api-subscription-key": SARVAM_API_KEY,
+                "Content-Type": "application/json",
+            },
+            timeout=30.0,
+        )
+        if response.status_code == 200:
+            audios = response.json().get("audios") or []
+            if audios:
+                return audios[0]  # already base64-encoded
+        print(f"[TTS] Sarvam error {response.status_code}: {response.text[:200]}")
     except Exception as e:
         print(f"[TTS] Sarvam exception: {e}")
     return ""

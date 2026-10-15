@@ -7,6 +7,7 @@ import httpx
 from dotenv import load_dotenv, find_dotenv
 
 import gemini_client
+import http_client
 
 load_dotenv(find_dotenv())
 
@@ -26,19 +27,19 @@ async def search(query: str) -> list[dict]:
         return []
 
     try:
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            response = await client.post(
-                TAVILY_URL,
-                json={
-                    "api_key": TAVILY_API_KEY,
-                    "query": query,
-                    "max_results": 10,
-                    "search_depth": "advanced",
-                },
-                headers={"Authorization": f"Bearer {TAVILY_API_KEY}"},
-            )
-            response.raise_for_status()
-            data = response.json()
+        response = await http_client.client.post(
+            TAVILY_URL,
+            json={
+                "api_key": TAVILY_API_KEY,
+                "query": query,
+                "max_results": 10,
+                "search_depth": "advanced",
+            },
+            headers={"Authorization": f"Bearer {TAVILY_API_KEY}"},
+            timeout=15.0,
+        )
+        response.raise_for_status()
+        data = response.json()
     except (httpx.HTTPStatusError, httpx.RequestError):
         return []
 
@@ -99,10 +100,9 @@ async def wikipedia_anchor(topic: str) -> str | None:
     encoded = quote(topic.strip().replace(" ", "_"))
     url = f"https://en.wikipedia.org/api/rest_v1/page/summary/{encoded}"
     try:
-        async with httpx.AsyncClient(timeout=6.0) as client:
-            response = await client.get(url)
-            response.raise_for_status()
-            data = response.json()
+        response = await http_client.client.get(url, timeout=6.0)
+        response.raise_for_status()
+        data = response.json()
     except Exception:
         return None
     extract = data.get("extract", "")

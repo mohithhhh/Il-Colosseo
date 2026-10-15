@@ -2,6 +2,7 @@ import json
 import base64
 import asyncio
 import os
+from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import AsyncGenerator
 
@@ -25,7 +26,16 @@ import live
 
 load_dotenv(find_dotenv())
 
-app = FastAPI(title="Debate Arena API")
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    # Connect to Pinecone in the background so the first debate doesn't pay for it.
+    _background(vector_store.warm_up())
+    yield
+
+
+app = FastAPI(title="Debate Arena API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -42,6 +52,16 @@ _RETRY_INSTRUCTION = (
     "This time: make it at least 4 sentences, cite a specific source by name, "
     "and directly name and refute the opponent's claim."
 )
+
+
+_bg_tasks: set[asyncio.Task] = set()
+
+
+def _background(coro) -> None:
+    """Run a fire-and-forget coroutine, holding a reference so it isn't garbage-collected."""
+    task = asyncio.create_task(coro)
+    _bg_tasks.add(task)
+    task.add_done_callback(_bg_tasks.discard)
 
 
 def sse_event(data: dict) -> str:
@@ -194,9 +214,13 @@ async def run_round(
             language=language,
         )
 
+        # Synthesize while the quality check runs; the audio is discarded if the check fails.
+        tts_task = asyncio.create_task(synthesize(text, agent, language))
+
         # Speech eval — single retry on failure
         eval_result = await evaluate_speech(text, agent, round_num, prior_speech)
         if not eval_result.get("pass", True):
+            tts_task.cancel()
             text, citations = await argue(
                 agent, topic, round_num, history,
                 research=sources,
@@ -208,6 +232,7 @@ async def run_round(
                 memory=memory,
                 language=language,
             )
+            tts_task = asyncio.create_task(synthesize(text, agent, language))
 
         if agent == "PRO":
             pro_speech_text = text
@@ -215,7 +240,7 @@ async def run_round(
         scores[agent] += 1
         history = history + [{"agent": agent, "round": round_num, "text": text}]
 
-        audio_b64 = await synthesize(text, agent, language)
+        audio_b64 = await tts_task
         yield sse_event({
             "type": "speech",
             "agent": agent,
@@ -263,13 +288,22 @@ async def run_judge(
         language=language,
     )
 
-    judge_audio = await synthesize(verdict_text, "JUDGE", language)
+    # Verdict TTS and both reflections (reflect + TTS) are independent — run them concurrently
+    # and emit in the original order.
+    judge_tts = asyncio.create_task(synthesize(verdict_text, "JUDGE", language))
+
+    async def reflect_and_speak(agent: str) -> tuple[str, str]:
+        text = await reflect(agent, topic, history, verdict_text, language=language)
+        return text, await synthesize(text, agent, language)
+
+    reflect_tasks = {a: asyncio.create_task(reflect_and_speak(a)) for a in ("PRO", "CON")}
+
     yield sse_event({
         "type": "speech",
         "agent": "JUDGE",
         "round": ROUNDS,
         "text": verdict_text,
-        "audio": judge_audio,
+        "audio": await judge_tts,
         "score": None,
         "winner": winner,
         "citations": citations,
@@ -277,9 +311,8 @@ async def run_judge(
 
     reflections_collected: dict[str, str] = {}
     for agent in ("PRO", "CON"):
-        reflection_text = await reflect(agent, topic, history, verdict_text, language=language)
+        reflection_text, reflection_audio = await reflect_tasks[agent]
         reflections_collected[agent.lower()] = reflection_text
-        reflection_audio = await synthesize(reflection_text, agent, language)
         yield sse_event({
             "type": "reflection",
             "agent": agent,
@@ -322,8 +355,8 @@ async def run_judge(
     yield sse_event({"type": "artifact_saved", "filepath": filepath, "topic": topic})
 
     # Index into vector memory so future related debates can recall this verdict.
-    # Fails open internally — never blocks or breaks the response.
-    await vector_store.index_debate(debate_artifact)
+    # Fails open internally; backgrounded so the client isn't held on embed + upsert.
+    _background(vector_store.index_debate(debate_artifact))
 
     yield "data: [DONE]\n\n"
 
