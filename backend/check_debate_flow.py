@@ -123,6 +123,11 @@ async def run():
     assert not any(main._rate_limited("1.2.3.4") for _ in range(main.RATE_LIMIT_PER_HOUR))
     assert main._rate_limited("1.2.3.4") and not main._rate_limited("5.6.7.8")
 
+    # Client IP comes from the proxy-appended (rightmost) X-Forwarded-For entry, not the spoofable left.
+    conn = SimpleNamespace(headers={"x-forwarded-for": "6.6.6.6, 9.9.9.9"}, client=SimpleNamespace(host="10.0.0.1"))
+    assert main._client_ip(conn) == "9.9.9.9"
+    assert main._client_ip(SimpleNamespace(headers={}, client=SimpleNamespace(host="10.0.0.1"))) == "10.0.0.1"
+
     print("all debate flow checks passed")
 
 
