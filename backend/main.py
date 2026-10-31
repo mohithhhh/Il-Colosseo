@@ -3,7 +3,7 @@ import base64
 import asyncio
 import os
 import time
-from collections import defaultdict, deque
+from collections import OrderedDict, deque
 from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import AsyncGenerator
@@ -87,27 +87,36 @@ def _clean_side(raw: str | None) -> str | None:
 # Every debate request costs Gemini/Tavily/TTS credits, so cap requests per client IP.
 # A full debate is 4 requests (7 in Human vs AI mode).
 RATE_LIMIT_PER_HOUR = int(os.getenv("RATE_LIMIT_PER_HOUR", "60"))
-# Proxies in front of the app that append to X-Forwarded-For (Render/Railway: 1). The
-# leftmost entries are client-supplied and spoofable, so count from the right. 0 = no proxy.
-TRUSTED_PROXY_HOPS = int(os.getenv("TRUSTED_PROXY_HOPS", "1"))
+# Number of proxies in front of the app that append to X-Forwarded-For. The leftmost
+# entries are client-supplied and spoofable, so count from the right. Default 0 trusts no
+# header; render.yaml sets 1 for Render's load balancer (set it in Railway's dashboard too).
+TRUSTED_PROXY_HOPS = int(os.getenv("TRUSTED_PROXY_HOPS", "0"))
 _MAX_TRACKED_IPS = 10_000
-_hits: dict[str, deque] = defaultdict(deque)
+_hits: OrderedDict[str, deque] = OrderedDict()  # LRU: least recently seen IP first
 
 
 def _client_ip(conn: HTTPConnection) -> str:
-    fwd = [p.strip() for p in conn.headers.get("x-forwarded-for", "").split(",") if p.strip()]
-    if TRUSTED_PROXY_HOPS and len(fwd) >= TRUSTED_PROXY_HOPS:
-        return fwd[-TRUSTED_PROXY_HOPS]
+    if TRUSTED_PROXY_HOPS:
+        fwd = [
+            p.strip()
+            for header in conn.headers.getlist("x-forwarded-for")
+            for p in header.split(",")
+            if p.strip()
+        ]
+        if len(fwd) >= TRUSTED_PROXY_HOPS:
+            return fwd[-TRUSTED_PROXY_HOPS]
     return conn.client.host if conn.client else "unknown"
 
 
 def _rate_limited(ip: str) -> bool:
     # ponytail: per-process memory, resets on restart; move to Redis if the backend runs >1 instance.
     now = time.monotonic()
-    if len(_hits) > _MAX_TRACKED_IPS:
-        for stale in [k for k, q in _hits.items() if not q or now - q[-1] > 3600]:
-            del _hits[stale]
-    q = _hits[ip]
+    q = _hits.get(ip)
+    if q is None:
+        q = _hits[ip] = deque()
+        if len(_hits) > _MAX_TRACKED_IPS:
+            _hits.popitem(last=False)
+    _hits.move_to_end(ip)
     while q and now - q[0] > 3600:
         q.popleft()
     if len(q) >= RATE_LIMIT_PER_HOUR:

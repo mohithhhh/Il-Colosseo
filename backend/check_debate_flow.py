@@ -123,10 +123,23 @@ async def run():
     assert not any(main._rate_limited("1.2.3.4") for _ in range(main.RATE_LIMIT_PER_HOUR))
     assert main._rate_limited("1.2.3.4") and not main._rate_limited("5.6.7.8")
 
-    # Client IP comes from the proxy-appended (rightmost) X-Forwarded-For entry, not the spoofable left.
-    conn = SimpleNamespace(headers={"x-forwarded-for": "6.6.6.6, 9.9.9.9"}, client=SimpleNamespace(host="10.0.0.1"))
+    # LRU cap: the oldest IP is evicted, so memory stays bounded.
+    main._MAX_TRACKED_IPS = 3
+    for ip in ("a", "b", "c", "d"):
+        main._rate_limited(ip)
+    assert "1.2.3.4" not in main._hits and len(main._hits) == 3
+
+    # X-Forwarded-For is ignored unless proxies are trusted; then the rightmost (proxy-appended)
+    # entry counts, never the spoofable leftmost.
+    from starlette.datastructures import Headers
+    conn = SimpleNamespace(
+        headers=Headers(raw=[(b"x-forwarded-for", b"6.6.6.6, 7.7.7.7"), (b"x-forwarded-for", b"9.9.9.9")]),
+        client=SimpleNamespace(host="10.0.0.1"),
+    )
+    main.TRUSTED_PROXY_HOPS = 0
+    assert main._client_ip(conn) == "10.0.0.1"
+    main.TRUSTED_PROXY_HOPS = 1
     assert main._client_ip(conn) == "9.9.9.9"
-    assert main._client_ip(SimpleNamespace(headers={}, client=SimpleNamespace(host="10.0.0.1"))) == "10.0.0.1"
 
     print("all debate flow checks passed")
 
