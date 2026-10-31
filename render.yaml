@@ -35,5 +35,8 @@ services:
         value: "true"
       - key: DEEP_RESEARCH_ENABLED
         value: "true"
+      # Render's load balancer appends the client IP to X-Forwarded-For (rate limiting).
+      - key: TRUSTED_PROXY_HOPS
+        value: "1"
 
         

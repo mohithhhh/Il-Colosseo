@@ -6,26 +6,47 @@ import JudgePanel from "./components/JudgePanel";
 import ReflectionCard from "./components/ReflectionCard";
 import CurveballPanel from "./components/CurveballPanel";
 import LiveArenaPanel from "./components/LiveArenaPanel";
+import ScorecardPanel from "./components/ScorecardPanel";
+import CommonGroundPanel from "./components/CommonGroundPanel";
+import CoachPanel from "./components/CoachPanel";
+import { TruthStart, TruthReveal } from "./components/TruthMode";
 const BG = "url('/bg.webp')";
 const SCRIM_LANDING = "rgba(8, 8, 12, 0.55)";
 const SCRIM_ARENA = "rgba(8, 8, 12, 0.80)";
 
 export default function App() {
-  const { state, start, proceed, reset, startListening, submitCurveball } = useDebate();
+  const { state, start, proceed, reset, startListening, submitCurveball, submitHumanSpeech } = useDebate();
   const {
     status, pendingAction, rounds, judge, reflections,
     warnings, artifactPath,
-    curveball, curveballDraft, awaitingCurveball, isListening,
+    curveball, voiceDraft, awaitingCurveball, isListening,
     error,
+    humanSide, awaitingHuman, scorecard, commonGround, coach,
   } = state;
   const scrollRef = useRef(null);
   const [dismissedWarnings, setDismissedWarnings] = useState([]);
   const [liveTopic, setLiveTopic] = useState("");
   const [showLive, setShowLive] = useState(false);
+  const [language, setLanguage] = useState("en");
+  const [showTruth, setShowTruth] = useState(false);
+  const [truth, setTruth] = useState(null); // { claim, answer, why, initialVote } in Truth Mode
 
-  const handleStart = (topic, language) => {
+  const handleStart = (topic, lang, side) => {
+    setTruth(null);
     setLiveTopic(topic);
-    start(topic, language);
+    start(topic, lang, side);
+  };
+
+  const handleTruthStart = (item, initialVote) => {
+    setShowTruth(false);
+    setTruth({ ...item, initialVote });
+    setLiveTopic(item.claim);
+    start(item.claim, language, null);
+  };
+
+  const handleReset = () => {
+    setTruth(null);
+    reset();
   };
 
   const isIdle = status === "idle";
@@ -40,7 +61,7 @@ export default function App() {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [rounds.length, judge.text, reflections.PRO.displayText, reflections.CON.displayText, pendingAction, awaitingCurveball, curveball]);
+  }, [rounds.length, judge.text, reflections.PRO.displayText, reflections.CON.displayText, pendingAction, awaitingCurveball, curveball, awaitingHuman, scorecard, commonGround, coach, status]);
 
   // ── Landing page ──
   if (isIdle) {
@@ -101,7 +122,7 @@ export default function App() {
           >
             Built for gladiators. Rebuilt for intelligence.
           </p>
-          <TopicInput onStart={handleStart} disabled={false} />
+          <TopicInput onStart={handleStart} disabled={false} language={language} onLanguageChange={setLanguage} />
           {error && (
             <p
               style={{
@@ -114,15 +135,25 @@ export default function App() {
               {error}
             </p>
           )}
-          <button
-            onClick={() => setShowLive(true)}
-            className="glass-pill px-4 py-2 text-white/60 text-xs"
-            style={{ fontWeight: 500, cursor: "pointer", fontSize: "0.72rem" }}
-          >
-            🎙️ Enter the Arena
-          </button>
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", justifyContent: "center" }}>
+            <button
+              onClick={() => setShowLive(true)}
+              className="glass-pill px-4 py-2 text-white/60 text-xs"
+              style={{ fontWeight: 500, cursor: "pointer", fontSize: "0.72rem" }}
+            >
+              🎙️ Enter the Arena
+            </button>
+            <button
+              onClick={() => setShowTruth(true)}
+              className="glass-pill px-4 py-2 text-white/60 text-xs"
+              style={{ fontWeight: 500, cursor: "pointer", fontSize: "0.72rem" }}
+            >
+              ⚖️ Truth Mode
+            </button>
+          </div>
         </div>
         {showLive && <LiveArenaPanel topic={liveTopic} onClose={() => setShowLive(false)} />}
+        {showTruth && <TruthStart onStart={handleTruthStart} onClose={() => setShowTruth(false)} />}
       </div>
     );
   }
@@ -179,7 +210,7 @@ export default function App() {
             Il Colosseo
           </h1>
           <button
-            onClick={reset}
+            onClick={handleReset}
             className="glass-pill px-3 py-1 text-white/40 text-xs"
             style={{ fontWeight: 500, cursor: "pointer", fontSize: "0.72rem" }}
           >
@@ -299,10 +330,25 @@ export default function App() {
           {/* Audience curveball input — appears after round 2, before Start Round 3 */}
           {awaitingCurveball && (
             <CurveballPanel
-              curveballDraft={curveballDraft}
+              voiceDraft={voiceDraft}
               isListening={isListening}
               onStartListening={startListening}
               onSubmit={submitCurveball}
+            />
+          )}
+
+          {/* Human vs AI — the user's turn */}
+          {awaitingHuman && status === "waiting" && (
+            <CurveballPanel
+              voiceDraft={voiceDraft}
+              isListening={isListening}
+              onStartListening={startListening}
+              onSubmit={submitHumanSpeech}
+              title={`Your turn · ${humanSide === "PRO" ? "arguing for" : "arguing against"}`}
+              micLabel="Speak your argument"
+              placeholder="Or type your argument — make your points, cite evidence, rebut your opponent..."
+              submitLabel="Deliver your argument"
+              maxLength={1500}
             />
           )}
 
@@ -383,6 +429,8 @@ export default function App() {
 
           {showJudge && <JudgePanel data={judge} curveball={curveball} />}
 
+          {showJudge && <ScorecardPanel scores={scorecard} humanSide={humanSide} />}
+
           {/* Artifact saved pill */}
           {artifactPath && (
             <div style={{ display: "flex", justifyContent: "center" }}>
@@ -412,6 +460,11 @@ export default function App() {
               <ReflectionCard agent="CON" displayText={reflections.CON.displayText} />
             </div>
           )}
+
+          <CommonGroundPanel data={commonGround} humanSide={humanSide} />
+          <CoachPanel data={coach} />
+
+          {truth && status === "complete" && <TruthReveal truth={truth} winner={judge.winner} />}
         </div>
       </div>
 

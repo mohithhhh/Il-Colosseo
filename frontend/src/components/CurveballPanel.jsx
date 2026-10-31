@@ -22,19 +22,25 @@ const MicIcon = () => (
   </svg>
 );
 
+// Also used for the human's turn in Human vs AI mode, with different labels and a longer limit.
 export default function CurveballPanel({
-  curveballDraft,
+  voiceDraft,
   isListening,
   onStartListening,
   onSubmit,
+  title = "Audience challenge",
+  micLabel = "Speak your challenge",
+  placeholder = "Or type your challenge...",
+  submitLabel = "Throw it into the arena",
+  maxLength = 280,
 }) {
   const [textInput, setTextInput] = useState("");
   const [editedDraft, setEditedDraft] = useState("");
 
   // Sync incoming voice transcript into local editable state
   useEffect(() => {
-    setEditedDraft(curveballDraft || "");
-  }, [curveballDraft]);
+    setEditedDraft(voiceDraft || "");
+  }, [voiceDraft]);
 
   const activeContent = editedDraft.trim() || textInput.trim();
   const canSubmit = activeContent.length > 0;
@@ -63,7 +69,7 @@ export default function CurveballPanel({
             whiteSpace: "nowrap",
           }}
         >
-          Audience challenge
+          {title}
         </span>
         <div style={{ flex: 1, height: "1px", background: "var(--glass-divider)" }} />
       </div>
@@ -112,14 +118,14 @@ export default function CurveballPanel({
                 transition: "color 0.2s",
               }}
             >
-              {isListening ? "Listening..." : "Speak your challenge"}
+              {isListening ? "Listening..." : micLabel}
             </span>
 
             {/* Editable voice transcript pill */}
             {editedDraft && (
               <input
                 value={editedDraft}
-                onChange={(e) => setEditedDraft(e.target.value.slice(0, 280))}
+                onChange={(e) => setEditedDraft(e.target.value.slice(0, maxLength))}
                 style={{
                   width: "100%",
                   padding: "6px 12px",
@@ -148,9 +154,9 @@ export default function CurveballPanel({
         >
           <textarea
             value={textInput}
-            onChange={(e) => setTextInput(e.target.value.slice(0, 280))}
-            placeholder="Or type your challenge..."
-            rows={3}
+            onChange={(e) => setTextInput(e.target.value.slice(0, maxLength))}
+            placeholder={placeholder}
+            rows={maxLength > 280 ? 6 : 3}
             style={{
               width: "100%",
               padding: "10px 14px",
@@ -176,7 +182,7 @@ export default function CurveballPanel({
               paddingRight: "2px",
             }}
           >
-            {textInput.length}/280
+            {textInput.length}/{maxLength}
           </span>
         </div>
       </div>
@@ -211,7 +217,7 @@ export default function CurveballPanel({
           e.currentTarget.style.color = "rgba(255,255,255,0.85)";
         }}
       >
-        Throw it into the arena
+        {submitLabel}
       </button>
     </div>
   );

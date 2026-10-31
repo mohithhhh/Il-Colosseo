@@ -16,9 +16,9 @@ uvicorn main:app --reload --port 8000
 ```
 Frontend (from `frontend/`): `npm install`, `npm run dev` (http://localhost:5173), `npm run build`, `npm run lint`.
 
-There is no test suite. `GET /health` is the health check used by Render/Railway.
+There is no test suite. `backend/check_debate_flow.py` is an offline check of the SSE flow (round, human pause/resume, judge, rate limiter) with Gemini/search/TTS stubbed: `cd backend && .venv/bin/python check_debate_flow.py`. Run it after touching `main.py` or `analysis.py`. `GET /health` is the health check used by Render/Railway.
 
-Env vars are loaded with `load_dotenv(find_dotenv())`, so a `.env` in `backend/` or the repo root works. Required: `GEMINI_API_KEY`, `TAVILY_API_KEY`. Everything else (Fish Audio, Sarvam, Pinecone, feature flags `SPEECH_EVAL_ENABLED`, `DEEP_RESEARCH_ENABLED`, `GROUNDING_ENABLED`, `VECTOR_MEMORY_ENABLED`, `LIVE_VOICE_ENABLED`) is optional and degrades gracefully. The frontend reads `VITE_API_URL` (defaults to `http://localhost:8000`).
+Env vars are loaded with `load_dotenv(find_dotenv())`, so a `.env` in `backend/` or the repo root works. Required: `GEMINI_API_KEY`, `TAVILY_API_KEY`. Everything else (Fish Audio, Sarvam, Pinecone, feature flags `SPEECH_EVAL_ENABLED`, `DEEP_RESEARCH_ENABLED`, `GROUNDING_ENABLED`, `VECTOR_MEMORY_ENABLED`, `LIVE_VOICE_ENABLED`, `ANALYSIS_ENABLED`, plus `RATE_LIMIT_PER_HOUR`, `TRUSTED_PROXY_HOPS`) is optional and degrades gracefully. The frontend reads `VITE_API_URL` (defaults to `http://localhost:8000`).
 
 Deploy: frontend → Vercel (`vercel.json` builds `frontend/`, SPA rewrite); backend → Render (`render.yaml`) or Railway (`backend/railway.toml`, `Procfile`).
 
@@ -31,9 +31,11 @@ Deploy: frontend → Vercel (`vercel.json` builds `frontend/`, SPA rewrite); bac
 2. In parallel: integrity gate (`integrity_gate.py`, may retry with a broad query or emit a `warning` event), claim extraction, full-article fetch of the top source.
 3. `argue()` in `agents.py` builds the prompt from sources, `[BACKGROUND]` Wikipedia anchor, `[EXTRACTED CLAIMS]`, vector-memory precedent, curveball, and language directive.
 4. `evaluate_speech` (`speech_eval.py`) — one regeneration with `_RETRY_INSTRUCTION` on failure.
-5. `tts.synthesize` → base64 audio in the `speech` event.
+5. `tts.synthesize` → base64 audio in the `speech` event, while `analysis.watch_speech` (Manipulation Watch) runs; `analysis.verify_quotes` string-matches quoted text against the fetched sources. Flags are stored on the `history` entry.
 
-After round 2 the server emits `awaiting_curveball`; the audience's text (clamped to 280 chars by `_clean_curveball`) is sent with round 3 and the judge request. `run_judge` emits the verdict, two reflections, writes the JSON artifact (`artifact_writer.py` → `debates/`), then indexes into Pinecone.
+**Human vs AI** (`human_side` on the request): when `run_round` reaches the human's side without `human_speech` it emits `awaiting_human` (with resumable state) and ends the stream. The client re-sends the same `round_num` with `human_speech`; `run_round` skips any side that already has a `history` entry for that round, and the round-1 classification is skipped when `topic_meta` is already populated.
+
+After round 2 the server emits `awaiting_curveball`; the audience's text (clamped to 280 chars by `_clean_curveball`) is sent with round 3 and the judge request. `run_judge` emits the verdict, the rubric `scorecard` (started in parallel with the verdict), reflections for the AI side(s), the `common_ground` mediator statement and, in Human vs AI, the `coach` report, then writes the JSON artifact (`artifact_writer.py` → `debates/`), then indexes into Pinecone.
 
 **All Gemini calls go through `gemini_client.generate()`**, which handles the primary → fallback model switch on 429 and optional Google Search grounding (`google_search_tool` / `extract_citations`). Don't instantiate `genai` clients elsewhere; model IDs live only in `gemini_client.py` (and `live.py` for the Live API model). `agents._generate_with_citations` tries grounded generation first and silently falls back to ungrounded.
 
@@ -55,4 +57,7 @@ After round 2 the server emits `awaiting_curveball`; the audience's text (clampe
 
 - `README.md` is partly stale: it omits Pinecone memory, Live voice and grounding, and lists the fallback model as `gemini-2.5-flash-lite` (code uses `gemini-flash-lite-latest`). Trust the code.
 - `backend/debates/*.json` artifacts are written to a path relative to the process CWD (so run uvicorn from `backend/`); some sample artifacts are checked in.
-- CORS is wide open (`allow_origins=["*"]`).
+- Primary model is `gemini-3.1-flash-lite-preview` (`gemini_client.py`). It's a preview ID, so if every call starts failing, check whether it was retired before debugging elsewhere.
+- `frontend/.env` is tracked in git and `frontend/.gitignore` doesn't ignore it. Keep only `VITE_*` values there; secrets go in `backend/.env`.
+- CORS is wide open (`allow_origins=["*"]`). Abuse is bounded by the in-memory per-IP rate limit in `main.py` (`RATE_LIMIT_PER_HOUR`). It reads the client IP from X-Forwarded-For only when `TRUSTED_PROXY_HOPS` > 0. `render.yaml` sets 1; Railway needs it set in the dashboard, or every user shares one bucket.
+- Truth Mode is frontend-only: claims and answers live in `frontend/src/truth.js`, and stats are per-viewer `localStorage`.

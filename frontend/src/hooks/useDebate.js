@@ -54,10 +54,15 @@ const initialState = () => ({
   warnings: [],
   artifactPath: null,
   curveball: null,
-  curveballDraft: "",
+  voiceDraft: "",
   awaitingCurveball: false,
   isListening: false,
   error: null,
+  humanSide: null,          // null | "PRO" | "CON" — Human vs AI mode
+  awaitingHuman: false,
+  scorecard: null,          // { PRO: {criterion: 0-10}, CON: {...} }
+  commonGround: null,       // { statement, disputed, objections }
+  coach: null,              // { strengths, improve, missed_rebuttal, champion_rewrite }
 });
 
 // ── Web Speech API (fallback) ──
@@ -141,6 +146,9 @@ export function useDebate() {
   const recognitionRef = useRef(null);
   const pendingActionRef = useRef(null);
   const languageRef = useRef("en");
+  const humanSideRef = useRef(null);
+  const awaitingHumanRef = useRef(false);
+  const currentRoundRef = useRef(1);
 
   // Process a single parsed SSE event
   async function handleEvent(event) {
@@ -158,7 +166,33 @@ export function useDebate() {
     }
 
     if (type === "awaiting_curveball") {
-      setState((s) => ({ ...s, awaitingCurveball: true }));
+      // In Human vs AI the user is already in the ring — skip the audience pause.
+      if (!humanSideRef.current) setState((s) => ({ ...s, awaitingCurveball: true }));
+      return;
+    }
+
+    if (type === "awaiting_human") {
+      historyRef.current = event.history;
+      researchLogRef.current = event.research_log;
+      if (event.topic_meta) topicMetaRef.current = event.topic_meta;
+      awaitingHumanRef.current = true;
+      setState((s) => ({ ...s, awaitingHuman: true }));
+      return;
+    }
+
+    if (type === "scorecard") {
+      setState((s) => ({ ...s, scorecard: event.scores }));
+      return;
+    }
+
+    if (type === "common_ground") {
+      const { statement, disputed, objections } = event;
+      setState((s) => ({ ...s, commonGround: { statement, disputed, objections } }));
+      return;
+    }
+
+    if (type === "coach") {
+      setState((s) => ({ ...s, coach: event }));
       return;
     }
 
@@ -184,6 +218,20 @@ export function useDebate() {
 
     if (type === "speech") {
       const { round, text, audio, score, winner, citations } = event;
+      const analysis = { quotes: event.quotes ?? [], flags: event.flags ?? [], human: !!event.human };
+
+      // The human's own speech: show it at once, don't read it back to them.
+      if (event.human) {
+        setState((s) => {
+          const update = { text, displayText: text, score, research: null, sources: [], ...analysis };
+          const exists = s.rounds.some((r) => r.round === round);
+          if (exists) return { ...s, awaitingHuman: false, rounds: updateRoundAgent(s.rounds, round, agentKey, update) };
+          const newRound = { round, PRO: emptyAgent(), CON: emptyAgent() };
+          newRound[agentKey] = { ...newRound[agentKey], ...update };
+          return { ...s, awaitingHuman: false, rounds: [...s.rounds, newRound] };
+        });
+        return;
+      }
 
       if (agentKey === "JUDGE") {
         setState((s) => ({ ...s, judge: { text, displayText: "", winner, citations: citations ?? [] } }));
@@ -205,11 +253,12 @@ export function useDebate() {
                 displayText: "",
                 score: score ?? prevAgent.score,
                 sources: mergeSources(prevAgent.sources, citations),
+                ...analysis,
               }),
             };
           }
           const newRound = { round, PRO: emptyAgent(), CON: emptyAgent() };
-          newRound[agentKey] = { text, displayText: "", score: score ?? 0, research: null, sources: mergeSources([], citations) };
+          newRound[agentKey] = { text, displayText: "", score: score ?? 0, research: null, sources: mergeSources([], citations), ...analysis };
           return { ...s, rounds: [...s.rounds, newRound] };
         });
         await Promise.all([
@@ -265,6 +314,7 @@ export function useDebate() {
       signal,
     });
 
+    if (response.status === 429) throw new Error("The arena is busy — too many debates from your network. Try again in a while.");
     if (!response.ok) throw new Error(`Server error: ${response.status}`);
 
     const reader = response.body.getReader();
@@ -301,13 +351,14 @@ export function useDebate() {
     }
 
     const recognition = new SpeechRecognition();
-    recognition.continuous = false;
+    // A human's whole turn is longer than one breath; a curveball is one sentence.
+    recognition.continuous = !!humanSideRef.current;
     recognition.interimResults = true;
-    recognition.lang = "en-US";
+    recognition.lang = languageRef.current === "en" ? "en-US" : languageRef.current;
 
     recognition.onresult = (e) => {
       const transcript = Array.from(e.results).map((r) => r[0].transcript).join("");
-      setState((s) => ({ ...s, curveballDraft: transcript }));
+      setState((s) => ({ ...s, voiceDraft: transcript }));
     };
     recognition.onend = () => {
       recognitionRef.current = null;
@@ -335,17 +386,55 @@ export function useDebate() {
       ...s,
       curveball: trimmed,
       awaitingCurveball: false,
-      curveballDraft: "",
+      voiceDraft: "",
       isListening: false,
     }));
   }, []);
 
-  const start = useCallback(async (topic, language = "en") => {
+  function freshController() {
     if (abortRef.current) abortRef.current.abort();
     const controller = new AbortController();
     abortRef.current = controller;
-
     try { getAudioCtx().resume(); } catch (e) { /* unsupported */ }
+    return controller;
+  }
+
+  // Run (or resume, after a human turn) one round, then queue the next action. If the
+  // server pauses for the human's speech, nothing is queued until submitHumanSpeech.
+  async function runRound(roundNum, signal, humanSpeech = null) {
+    currentRoundRef.current = roundNum;
+    awaitingHumanRef.current = false;
+    await streamEndpoint(
+      "/debate/round",
+      {
+        topic: topicRef.current,
+        round_num: roundNum,
+        history: historyRef.current,
+        research_log: researchLogRef.current,
+        topic_meta: topicMetaRef.current,
+        curveball: roundNum === 3 ? curveballRef.current : null,
+        language: languageRef.current,
+        human_side: humanSideRef.current,
+        human_speech: humanSpeech,
+      },
+      signal,
+    );
+    if (awaitingHumanRef.current) {
+      setState((s) => ({ ...s, status: "waiting", pendingAction: null }));
+      return;
+    }
+    const nextAction = roundNum < ROUNDS ? roundNum + 1 : "judge";
+    pendingActionRef.current = nextAction;
+    setState((s) => ({ ...s, status: "waiting", pendingAction: nextAction }));
+  }
+
+  const fail = (err) => {
+    if (err.name === "AbortError") return;
+    setState((s) => ({ ...s, status: "idle", error: err.message }));
+  };
+
+  const start = useCallback(async (topic, language = "en", humanSide = null) => {
+    const controller = freshController();
 
     topicRef.current = topic;
     historyRef.current = [];
@@ -354,33 +443,21 @@ export function useDebate() {
     curveballRef.current = null;
     pendingActionRef.current = null;
     languageRef.current = language;
+    humanSideRef.current = humanSide;
 
-    setState({ ...initialState(), status: "running" });
+    setState({ ...initialState(), status: "running", humanSide });
 
     try {
-      await streamEndpoint(
-        "/debate/round",
-        { topic, round_num: 1, history: [], research_log: [], topic_meta: {}, curveball: null, language },
-        controller.signal,
-      );
-      const nextAction = ROUNDS > 1 ? 2 : "judge";
-      pendingActionRef.current = nextAction;
-      setState((s) => ({ ...s, status: "waiting", pendingAction: nextAction }));
+      await runRound(1, controller.signal);
     } catch (err) {
-      if (err.name === "AbortError") return;
-      setState((s) => ({ ...s, status: "idle", error: err.message }));
+      fail(err);
     }
   }, []);
 
   const proceed = useCallback(async () => {
     const action = pendingActionRef.current;
     if (!action) return;
-
-    if (abortRef.current) abortRef.current.abort();
-    const controller = new AbortController();
-    abortRef.current = controller;
-
-    try { getAudioCtx().resume(); } catch (e) { /* unsupported */ }
+    const controller = freshController();
 
     pendingActionRef.current = null;
     setState((s) => ({ ...s, status: "running", pendingAction: null }));
@@ -396,31 +473,32 @@ export function useDebate() {
             topic_meta: topicMetaRef.current,
             curveball: curveballRef.current,
             language: languageRef.current,
+            human_side: humanSideRef.current,
           },
           controller.signal,
         );
         setState((s) => ({ ...s, status: "complete" }));
       } else {
-        await streamEndpoint(
-          "/debate/round",
-          {
-            topic: topicRef.current,
-            round_num: action,
-            history: historyRef.current,
-            research_log: researchLogRef.current,
-            topic_meta: topicMetaRef.current,
-            curveball: action === 3 ? curveballRef.current : null,
-            language: languageRef.current,
-          },
-          controller.signal,
-        );
-        const nextAction = action < ROUNDS ? action + 1 : "judge";
-        pendingActionRef.current = nextAction;
-        setState((s) => ({ ...s, status: "waiting", pendingAction: nextAction }));
+        await runRound(action, controller.signal);
       }
     } catch (err) {
-      if (err.name === "AbortError") return;
-      setState((s) => ({ ...s, status: "idle", error: err.message }));
+      fail(err);
+    }
+  }, []);
+
+  const submitHumanSpeech = useCallback(async (text) => {
+    const trimmed = text.trim().slice(0, 1500);
+    if (!trimmed || !awaitingHumanRef.current) return;
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch { /* already stopped */ }
+      recognitionRef.current = null;
+    }
+    const controller = freshController();
+    setState((s) => ({ ...s, status: "running", voiceDraft: "", isListening: false }));
+    try {
+      await runRound(currentRoundRef.current, controller.signal, trimmed);
+    } catch (err) {
+      fail(err);
     }
   }, []);
 
@@ -438,8 +516,10 @@ export function useDebate() {
     topicMetaRef.current = {};
     curveballRef.current = null;
     languageRef.current = "en";
+    humanSideRef.current = null;
+    awaitingHumanRef.current = false;
     setState(initialState());
   }, []);
 
-  return { state, start, proceed, reset, startListening, submitCurveball };
+  return { state, start, proceed, reset, startListening, submitCurveball, submitHumanSpeech };
 }

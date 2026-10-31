@@ -3,6 +3,57 @@ import ResearchPanel from "./ResearchPanel";
 
 const DISPLAY_NAME = { PRO: "Maximus", CON: "Nexus" };
 
+const FLAG_LABEL = {
+  cherry_pick: "Cherry-picked",
+  missing_context: "Missing context",
+  loaded_framing: "Loaded framing",
+  false_balance: "False balance",
+  overgeneralization: "Overgeneralization",
+  unsupported: "Unsupported",
+};
+
+const chip = (color) => ({
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "6px",
+  maxWidth: "100%",
+  padding: "4px 10px",
+  borderRadius: "8px",
+  fontSize: "0.68rem",
+  lineHeight: 1.5,
+  color: `rgba(${color},0.85)`,
+  background: `rgba(${color},0.08)`,
+  border: `1px solid rgba(${color},0.25)`,
+  textDecoration: "none",
+});
+
+// Verified quotes (✓ found verbatim in a fetched source / ⚠ not found) and Manipulation
+// Watch flags — persuasion that misleads without stating anything false.
+function SpeechAnalysis({ quotes, flags }) {
+  if (!quotes?.length && !flags?.length) return null;
+  return (
+    <div className="fade-in" style={{ marginTop: "12px", display: "flex", flexDirection: "column", gap: "6px" }}>
+      {quotes?.map((q, i) =>
+        q.verified ? (
+          <a key={`q${i}`} href={q.url} target="_blank" rel="noopener noreferrer" style={chip("134,239,172")}
+             title={`Found verbatim in: ${q.source_title}`}>
+            ✓ Quote verified · {q.source_title || "source"}
+          </a>
+        ) : (
+          <span key={`q${i}`} style={chip("251,191,36")} title={`"${q.quote}"`}>
+            ⚠ Quote not found in fetched sources
+          </span>
+        )
+      )}
+      {flags?.map((f, i) => (
+        <span key={`f${i}`} style={chip("252,165,165")} title={f.excerpt ? `"${f.excerpt}"` : undefined}>
+          <strong style={{ fontWeight: 600 }}>{FLAG_LABEL[f.type] || f.type}</strong> · {f.note}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 export default function AgentCard({ agent, data, round, curveball }) {
   const bodyRef = useRef(null);
   const [popScore, setPopScore] = useState(false);
@@ -24,7 +75,10 @@ export default function AgentCard({ agent, data, round, curveball }) {
     }
   }, [data.score]);
 
-  const label = DISPLAY_NAME[agent] || agent;
+  const label = data.human ? "You" : DISPLAY_NAME[agent] || agent;
+  // streamWords rebuilds the text word by word, so compare word counts, not strings.
+  const doneSpeaking =
+    !!data.text && data.displayText.split(" ").length >= data.text.split(" ").filter(Boolean).length;
   const hasSources = data.sources && data.sources.length > 0;
 
   return (
@@ -149,6 +203,8 @@ export default function AgentCard({ agent, data, round, curveball }) {
           </span>
         )}
       </div>
+
+      {doneSpeaking && <SpeechAnalysis quotes={data.quotes} flags={data.flags} />}
     </div>
   );
 }

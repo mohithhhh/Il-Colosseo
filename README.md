@@ -66,6 +66,20 @@ Requires `SARVAM_API_KEY`. Without it, non-English debates still run (Gemini arg
 
 After Round 2 the arena pauses and opens a microphone + text input. The audience can issue a challenge that both agents must address in Round 3. Voice input is transcribed via the Web Speech API.
 
+## Arena Intelligence
+
+Built on recent research into AI debate, persuasion and deliberation (`backend/analysis.py`). Every module fails open.
+
+| Feature | What it does |
+|---|---|
+| **Human vs AI** | Pick *Argue for* or *Argue against* on the landing page. The round pauses on your turn (voice or text, in any supported language) and the AI rebuts you with live research. After the verdict you get a **coach report**: what worked, what to work on, the rebuttal you missed, and your weakest point rewritten the way a champion would say it. |
+| **Truth Mode** | A claim with a known answer (e.g. *"Bats are blind."*). You call it before the debate, watch PRO argue true and CON argue false, call it again, then see the answer. Per-viewer stats track whether the debate made you (and the judge) more accurate, after [Khan et al., *Debating with More Persuasive LLMs Leads to More Truthful Answers*](https://arxiv.org/abs/2402.06782). |
+| **Verified quotes** | Debaters quote sources verbatim; each quote is string-matched against the fetched source text. ✓ means it appears in the source, ⚠ means it was not found in what was fetched. |
+| **Manipulation Watch** | Flags persuasion that misleads without lying: cherry-picking, missing context, loaded framing, false balance, overgeneralization, unsupported claims. Shown as hints, not rulings. |
+| **Scorecard** | Rubric scores 0–10 per side for evidence, rebuttal, logic, clarity and responsiveness, computed alongside the verdict. |
+| **Common Ground** | Concordia, a mediator, drafts what both sides could endorse; each side objects; the statement is revised once. A critique-and-revise loop after DeepMind's Habermas Machine. |
+| **Rate limiting** | Per-IP hourly cap on debate requests and live sessions, so the API keys can't be drained by a script. |
+
 ## Setup
 
 ### 1. Environment variables
@@ -97,6 +111,15 @@ SPEECH_EVAL_ENABLED=true
 
 # Optional — set to false to disable deep research pipeline (faster, fewer API calls)
 DEEP_RESEARCH_ENABLED=true
+
+# Optional — set to false to skip Manipulation Watch, scorecard, common ground and coach (fewer Gemini calls)
+ANALYSIS_ENABLED=true
+
+# Optional — debate requests per client IP per hour (a full debate is 4 requests, 7 in Human vs AI)
+RATE_LIMIT_PER_HOUR=60
+
+# Number of proxies in front of the backend (Render/Railway: 1). 0 trusts no X-Forwarded-For header.
+TRUSTED_PROXY_HOPS=0
 ```
 
 ### 2. Backend
@@ -123,7 +146,7 @@ Optionally set `VITE_API_URL` in `frontend/.env` to point at a remote backend (d
 
 ## Usage
 
-1. Type a debate topic and click **Begin**.
+1. Type a debate topic, choose **Watch**, **Argue for** or **Argue against**, and click **Begin**. Or open **Truth Mode**.
 2. Watch PRO (Maximus) and CON (Nexus) argue — each agent researches the web before speaking.
 3. After each round a **Start Round N** button appears — click to continue.
 4. After Round 2 an audience curveball prompt appears — submit a challenge via voice or text.
@@ -141,25 +164,31 @@ Optionally set `VITE_API_URL` in `frontend/.env` to point at a remote backend (d
 
 **`/debate/round` request body**
 ```json
-{ "topic": "string", "round_num": 1, "history": [], "research_log": [], "topic_meta": {}, "curveball": null, "language": "en" }
+{ "topic": "string", "round_num": 1, "history": [], "research_log": [], "topic_meta": {}, "curveball": null, "language": "en", "human_side": null, "human_speech": null }
 ```
 Emits `warning` (optional), `researching`, `speech`, `round_complete` (with updated `history`, `research_log`, `topic_meta`), and `awaiting_curveball` (after round 2) SSE events, then `[DONE]`.
 
+In Human vs AI (`human_side`: `"PRO"` or `"CON"`), the stream stops with `awaiting_human` when it reaches the human's turn. Re-send the same `round_num` with the returned state plus `human_speech`; sides that already spoke this round are skipped.
+
 **`/debate/judge` request body**
 ```json
-{ "topic": "string", "history": [...], "research_log": [...], "topic_meta": {...}, "curveball": null, "language": "en" }
+{ "topic": "string", "history": [...], "research_log": [...], "topic_meta": {...}, "curveball": null, "language": "en", "human_side": null }
 ```
-Emits `speech` (JUDGE), `reflection` (×2), and `artifact_saved` SSE events, then `[DONE]`.
+Emits `speech` (JUDGE), `scorecard`, `reflection` (one per AI side), `common_ground`, `coach` (Human vs AI only) and `artifact_saved` SSE events, then `[DONE]`.
 
 ## SSE Event Types
 
 | Event | Description |
 |---|---|
 | `researching` | Agent is querying Tavily — includes `queries` (list), `sources`, `wikipedia_anchor`, `claims` |
-| `speech` | Agent speech text + base64 audio + score |
+| `speech` | Agent speech text + base64 audio + score + `quotes` (verified or not) + `flags` (Manipulation Watch); `human: true` for the user's own speech |
 | `round_complete` | End of round — carries `history`, `research_log`, `topic_meta` for next request |
 | `awaiting_curveball` | Emitted after round 2 — UI opens audience challenge input |
+| `awaiting_human` | Human vs AI: the human's turn — carries `history`, `research_log`, `topic_meta` to resume with |
 | `reflection` | Post-verdict agent reflection |
+| `scorecard` | Rubric scores per side |
+| `common_ground` | Concordia's `statement`, `disputed` crux, and each side's `objections` to the first draft |
+| `coach` | Human vs AI coach report |
 | `warning` | Weak research signal detected — shown as dismissible banner |
 | `artifact_saved` | Debate written to disk — includes `filepath` |
 
@@ -179,6 +208,8 @@ Emits `speech` (JUDGE), `reflection` (×2), and `artifact_saved` SSE events, the
 │   ├── integrity_gate.py    Source relevance checker with retry logic
 │   ├── speech_eval.py       Speech quality checker with regeneration on failure
 │   ├── artifact_writer.py   Saves completed debates to debates/ as JSON
+│   ├── analysis.py          Verified quotes · Manipulation Watch · scorecard · common ground · coach
+│   ├── check_debate_flow.py Offline check of the SSE flow (model calls stubbed)
 │   ├── debates/             Saved debate artifacts (gitignored)
 │   └── requirements.txt
 └── frontend/
