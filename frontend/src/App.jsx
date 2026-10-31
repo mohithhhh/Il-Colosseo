@@ -127,7 +127,6 @@ export default function App() {
               Two AI gladiators research any motion live, argue it over three rounds, and face a judge. Watch, or step
               into the ring yourself.
             </p>
-            {error && <p className="alert" role="alert" style={{ marginBottom: 20 }}>{error}</p>}
             <TopicInput onStart={handleStart} language={language} onLanguageChange={setLanguage} />
             <div className="elsewhere">
               <button className="elsewhere__item" onClick={() => setShowTruth(true)}>
@@ -229,10 +228,14 @@ export default function App() {
             />
           )}
 
+          {error && <p className="alert" role="alert">{error}</p>}
+
           {pendingAction !== null && (
             <div className="proceed">
               <button className="btn btn--primary" onClick={proceed}>
-                {pendingAction === "judge" ? "Hear the verdict" : `Start round ${pendingAction}`}
+                {pendingAction === "judge"
+                  ? error ? "Try the verdict again" : "Hear the verdict"
+                  : error ? `Try round ${pendingAction} again` : `Start round ${pendingAction}`}
               </button>
             </div>
           )}

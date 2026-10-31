@@ -3,6 +3,7 @@ import base64
 import asyncio
 import os
 import time
+import traceback
 from collections import OrderedDict, deque
 from contextlib import asynccontextmanager
 from datetime import datetime
@@ -507,23 +508,38 @@ async def run_judge(
     yield "data: [DONE]\n\n"
 
 
+async def _guarded(events: AsyncGenerator[str, None], what: str) -> AsyncGenerator[str, None]:
+    """Turn a crash mid-stream (a failed or timed-out model call) into an `error` event the
+    client can show, instead of a silently closed connection."""
+    try:
+        async for chunk in events:
+            yield chunk
+    except Exception:
+        traceback.print_exc()
+        yield sse_event({"type": "error", "message": f"The {what} failed on the server. Try it again."})
+        yield "data: [DONE]\n\n"
+
+
 @app.post("/debate/round", dependencies=[Depends(rate_limit)])
 async def round_endpoint(body: RoundRequest, request: Request):
-    # Classify topic on round 1; carry forward on subsequent rounds (and when round 1
-    # resumes after a human turn, since the client already holds the classification).
-    if body.round_num == 1 and not body.topic_meta:
-        topic_meta = await classify_topic(body.topic)
-    else:
-        topic_meta = body.topic_meta or {}
-
     curveball = _clean_text(body.curveball)
 
-    async def stream() -> AsyncGenerator[bytes, None]:
+    async def events() -> AsyncGenerator[str, None]:
+        # Classify topic on round 1; carry forward on subsequent rounds (and when round 1
+        # resumes after a human turn, since the client already holds the classification).
+        # Done inside the stream so the response starts at once.
+        topic_meta = body.topic_meta or {}
+        if body.round_num == 1 and not body.topic_meta:
+            topic_meta = await classify_topic(body.topic)
         async for chunk in run_round(
             body.topic, body.round_num, body.history, body.research_log, topic_meta, curveball, body.language,
             human_side=_clean_side(body.human_side),
             human_speech=_clean_text(body.human_speech, limit=1500),
         ):
+            yield chunk
+
+    async def stream() -> AsyncGenerator[bytes, None]:
+        async for chunk in _guarded(events(), "round"):
             if await request.is_disconnected():
                 break
             yield chunk.encode("utf-8")
@@ -544,10 +560,10 @@ async def judge_endpoint(body: JudgeRequest, request: Request):
     curveball = _clean_text(body.curveball)
 
     async def stream() -> AsyncGenerator[bytes, None]:
-        async for chunk in run_judge(
+        async for chunk in _guarded(run_judge(
             body.topic, body.history, body.research_log, body.topic_meta, curveball, body.language,
             human_side=_clean_side(body.human_side),
-        ):
+        ), "verdict"):
             if await request.is_disconnected():
                 break
             yield chunk.encode("utf-8")

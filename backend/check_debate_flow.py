@@ -62,6 +62,27 @@ def types_of(events):
 
 
 async def run():
+    # Gemini fallback: a timeout on the primary model retries on the fallback; a bad request doesn't.
+    from google.genai import errors
+
+    async def flaky(model, **_k):
+        if model == gemini_client.PRIMARY_MODEL:
+            raise TimeoutError("stalled")
+        return SimpleNamespace(text="from fallback")
+    real_client = gemini_client.client
+    gemini_client.client = SimpleNamespace(aio=SimpleNamespace(models=SimpleNamespace(generate_content=flaky)))
+    assert (await gemini_client.generate("p", "s")).text == "from fallback"
+
+    async def bad_request(model, **_k):
+        raise errors.ClientError(400, {"error": {"message": "bad"}})
+    gemini_client.client.aio.models.generate_content = bad_request
+    try:
+        await gemini_client.generate("p", "s")
+        raise AssertionError("a 400 must not fall back")
+    except errors.ClientError:
+        pass
+    gemini_client.client = real_client
+
     gemini_client.generate = fake_generate
     research_module.search = fake_search
     research_module.wikipedia_anchor = none
@@ -118,7 +139,17 @@ async def run():
     t = types_of(ev)
     assert t == ["speech", "scorecard", "reflection", "reflection", "common_ground", "artifact_saved", "DONE"], t
 
-    # 6. Rate limiter.
+    # 6. A crash mid-round (e.g. both models failing) reaches the client as an error event.
+    real_argue = main.argue
+
+    async def broken_argue(*_a, **_k):
+        raise RuntimeError("both models down")
+    main.argue = broken_argue
+    ev = await collect(main._guarded(main.run_round("Is the sky blue?", 1, [], [], {}), "round"))
+    assert types_of(ev)[-2:] == ["error", "DONE"], types_of(ev)
+    main.argue = real_argue
+
+    # 7. Rate limiter.
     main._hits.clear()
     assert not any(main._rate_limited("1.2.3.4") for _ in range(main.RATE_LIMIT_PER_HOUR))
     assert main._rate_limited("1.2.3.4") and not main._rate_limited("5.6.7.8")

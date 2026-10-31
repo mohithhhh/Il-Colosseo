@@ -155,6 +155,8 @@ export function useDebate() {
     const { type, agent } = event;
     const agentKey = agent?.toUpperCase();
 
+    if (type === "error") throw new Error(event.message || "The server hit an error.");
+
     if (type === "warning") {
       setState((s) => ({ ...s, warnings: [...s.warnings, event.message] }));
       return;
@@ -340,6 +342,8 @@ export function useDebate() {
         await handleEvent(event);
       }
     }
+    // Every complete stream ends with [DONE]; anything else means the connection dropped.
+    throw new Error("The connection to the arena dropped mid-way.");
   }
 
   const startListening = useCallback(() => {
@@ -428,9 +432,22 @@ export function useDebate() {
     setState((s) => ({ ...s, status: "waiting", pendingAction: nextAction }));
   }
 
-  const fail = (err) => {
+  // Keep the debate on screen and offer to re-run the step that failed. The server is
+  // stateless, so re-sending the same round with the last good history is a clean retry.
+  const fail = (err, retry) => {
     if (err.name === "AbortError") return;
-    setState((s) => ({ ...s, status: "idle", error: err.message }));
+    pendingActionRef.current = retry;
+    awaitingHumanRef.current = false;
+    // A side that was mid-research when it failed shouldn't keep saying "Researching".
+    const settle = (turn) => (turn.text ? turn : { ...turn, research: null });
+    setState((s) => ({
+      ...s,
+      status: "waiting",
+      pendingAction: retry,
+      awaitingHuman: false,
+      error: err.message,
+      rounds: s.rounds.map((r) => ({ ...r, PRO: settle(r.PRO), CON: settle(r.CON) })),
+    }));
   };
 
   const start = useCallback(async (topic, language = "en", humanSide = null) => {
@@ -450,7 +467,7 @@ export function useDebate() {
     try {
       await runRound(1, controller.signal);
     } catch (err) {
-      fail(err);
+      fail(err, 1);
     }
   }, []);
 
@@ -460,7 +477,7 @@ export function useDebate() {
     const controller = freshController();
 
     pendingActionRef.current = null;
-    setState((s) => ({ ...s, status: "running", pendingAction: null }));
+    setState((s) => ({ ...s, status: "running", pendingAction: null, error: null }));
 
     try {
       if (action === "judge") {
@@ -482,7 +499,7 @@ export function useDebate() {
         await runRound(action, controller.signal);
       }
     } catch (err) {
-      fail(err);
+      fail(err, action);
     }
   }, []);
 
@@ -494,11 +511,11 @@ export function useDebate() {
       recognitionRef.current = null;
     }
     const controller = freshController();
-    setState((s) => ({ ...s, status: "running", voiceDraft: "", isListening: false }));
+    setState((s) => ({ ...s, status: "running", voiceDraft: "", isListening: false, error: null }));
     try {
       await runRound(currentRoundRef.current, controller.signal, trimmed);
     } catch (err) {
-      fail(err);
+      fail(err, currentRoundRef.current);
     }
   }, []);
 

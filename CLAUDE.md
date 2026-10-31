@@ -24,7 +24,7 @@ Deploy: frontend → Vercel (`vercel.json` builds `frontend/`, SPA rewrite); bac
 
 ## Architecture
 
-**The backend is stateless; the client carries debate state.** `POST /debate/round` and `POST /debate/judge` stream SSE (`data: {json}\n\n`, terminated by `data: [DONE]`). Each `round_complete` event returns the updated `history`, `research_log`, and `topic_meta`, which `frontend/src/hooks/useDebate.js` stores and POSTs back on the next request. Topic classification (`classify_topic`) runs only on round 1; its output lives in `topic_meta` for later rounds. When adding per-debate data, thread it through `topic_meta` / `round_complete` rather than server-side session state.
+**The backend is stateless; the client carries debate state.** `POST /debate/round` and `POST /debate/judge` stream SSE (`data: {json}\n\n`, terminated by `data: [DONE]`). An exception mid-stream becomes an `error` event (`_guarded` in `main.py`); the client keeps the debate on screen and offers to re-run the failed step, and treats a stream without `[DONE]` as dropped. Each `round_complete` event returns the updated `history`, `research_log`, and `topic_meta`, which `frontend/src/hooks/useDebate.js` stores and POSTs back on the next request. Topic classification (`classify_topic`) runs only on round 1; its output lives in `topic_meta` for later rounds. When adding per-debate data, thread it through `topic_meta` / `round_complete` rather than server-side session state.
 
 **Per-agent turn pipeline** (`run_round` in `backend/main.py`, PRO then CON; CON sees PRO's fresh speech and sources):
 1. Query generation (`query_generator.py`) → parallel Tavily searches (`research.py`) → dedupe.

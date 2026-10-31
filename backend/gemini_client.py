@@ -12,7 +12,11 @@ from google.genai import types, errors
 
 load_dotenv(find_dotenv())
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY", ""))
+# Without a timeout a stalled call hangs the whole debate turn; 45s covers a slow grounded call.
+client = genai.Client(
+    api_key=os.getenv("GEMINI_API_KEY", ""),
+    http_options=types.HttpOptions(timeout=45_000),  # milliseconds
+)
 
 PRIMARY_MODEL = "gemini-3.1-flash-lite-preview"
 # Google-maintained alias rather than a pinned version — pinned lite models have been
@@ -27,11 +31,13 @@ async def generate(
     max_tokens: int = 150,
     tools: list | None = None,
 ):
-    """Call Gemini generate_content, falling back to FALLBACK_MODEL on rate limits.
+    """Call Gemini generate_content, falling back to FALLBACK_MODEL on a rate limit,
+    server error or timeout.
 
     Returns the raw GenerateContentResponse (use `.text` for the text, or
-    `extract_citations()` below for grounding results). Re-raises anything
-    that isn't a 429 so callers keep their existing error handling.
+    `extract_citations()` below for grounding results). Re-raises other client
+    errors (bad request, auth) and the fallback's failure so callers keep their
+    existing error handling.
     """
     for model_name in (PRIMARY_MODEL, FALLBACK_MODEL):
         try:
@@ -44,10 +50,12 @@ async def generate(
                     tools=tools,
                 ),
             )
-        except errors.ClientError as e:
-            if e.code == 429 and model_name != FALLBACK_MODEL:
-                continue
-            raise
+        except Exception as e:
+            if isinstance(e, errors.ClientError) and e.code != 429:
+                raise
+            if model_name == FALLBACK_MODEL:
+                raise
+            print(f"[Gemini] {model_name} failed ({type(e).__name__}); trying {FALLBACK_MODEL}")
 
 
 def google_search_tool() -> list:
