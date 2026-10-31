@@ -2,11 +2,14 @@ import json
 import base64
 import asyncio
 import os
+import time
+from collections import defaultdict, deque
 from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import AsyncGenerator
 
-from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
+from fastapi import Depends, FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
+from fastapi.requests import HTTPConnection
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -21,6 +24,7 @@ from classifier import classify_topic
 from integrity_gate import check_sources
 from speech_eval import evaluate_speech
 from artifact_writer import write_artifact
+import analysis
 import vector_store
 import live
 
@@ -68,11 +72,45 @@ def sse_event(data: dict) -> str:
     return f"data: {json.dumps(data)}\n\n"
 
 
-def _clean_curveball(raw: str | None) -> str | None:
+def _clean_text(raw: str | None, limit: int = 280) -> str | None:
     if not raw:
         return None
-    cleaned = raw.strip()[:280]
+    cleaned = raw.strip()[:limit]
     return cleaned or None
+
+
+def _clean_side(raw: str | None) -> str | None:
+    side = (raw or "").upper()
+    return side if side in ("PRO", "CON") else None
+
+
+# Every debate request costs Gemini/Tavily/TTS credits, so cap requests per client IP.
+# A full debate is 4 requests (7 in Human vs AI mode).
+RATE_LIMIT_PER_HOUR = int(os.getenv("RATE_LIMIT_PER_HOUR", "60"))
+_hits: dict[str, deque] = defaultdict(deque)
+
+
+def _client_ip(conn: HTTPConnection) -> str:
+    # Render/Railway sit behind a proxy that sets X-Forwarded-For.
+    fwd = conn.headers.get("x-forwarded-for")
+    return fwd.split(",")[0].strip() if fwd else (conn.client.host if conn.client else "unknown")
+
+
+def _rate_limited(ip: str) -> bool:
+    # ponytail: per-process memory, resets on restart; move to Redis if the backend runs >1 instance.
+    now = time.monotonic()
+    q = _hits[ip]
+    while q and now - q[0] > 3600:
+        q.popleft()
+    if len(q) >= RATE_LIMIT_PER_HOUR:
+        return True
+    q.append(now)
+    return False
+
+
+def rate_limit(request: Request) -> None:
+    if _rate_limited(_client_ip(request)):
+        raise HTTPException(429, "Too many debates from your network. Try again in a while.")
 
 
 class RoundRequest(BaseModel):
@@ -83,6 +121,8 @@ class RoundRequest(BaseModel):
     topic_meta: dict = {}
     curveball: str | None = None
     language: str = "en"
+    human_side: str | None = None  # "PRO" | "CON" in Human vs AI mode
+    human_speech: str | None = None
 
 
 class JudgeRequest(BaseModel):
@@ -92,6 +132,7 @@ class JudgeRequest(BaseModel):
     topic_meta: dict = {}
     curveball: str | None = None
     language: str = "en"
+    human_side: str | None = None
 
 
 async def run_round(
@@ -102,39 +143,81 @@ async def run_round(
     topic_meta: dict,
     curveball: str | None = None,
     language: str = "en",
+    human_side: str | None = None,
+    human_speech: str | None = None,
 ) -> AsyncGenerator[str, None]:
     scores = {
         "PRO": sum(1 for h in history if h["agent"] == "PRO"),
         "CON": sum(1 for h in history if h["agent"] == "CON"),
     }
-    pro_speech_text = ""
-    pro_sources: list[dict] = []
-    search_strategy = topic_meta.get("search_strategy", "")
+    # When a round resumes after a human turn, PRO has already spoken this round.
+    pro_speech_text = next((h["text"] for h in history if h["agent"] == "PRO" and h["round"] == round_num), "")
+    pro_sources: list[dict] = next(
+        (r["sources"] for r in research_log if r["agent"] == "PRO" and r["round"] == round_num), []
+    )
     agent_instruction = topic_meta.get("agent_instruction", "")
     wiki: str | None = topic_meta.get("wikipedia_anchor")
     memory: list[dict] = topic_meta.get("memory", [])
 
     for agent in ("PRO", "CON"):
+        if any(h["agent"] == agent and h["round"] == round_num for h in history):
+            continue
+
         prior_speech = next(
             (h["text"] for h in reversed(history) if h["agent"] == ("CON" if agent == "PRO" else "PRO")),
             None,
         )
 
-        # ── Generate queries (+ wikipedia_anchor + vector memory in parallel for round 1 PRO) ──
+        # ── Human vs AI: the human's turn. Pause the round until their speech arrives. ──
+        if agent == human_side:
+            if not human_speech:
+                yield sse_event({
+                    "type": "awaiting_human",
+                    "agent": agent,
+                    "round": round_num,
+                    "history": history,
+                    "research_log": research_log,
+                    "topic_meta": topic_meta,
+                })
+                yield "data: [DONE]\n\n"
+                return
+            text = human_speech
+            flags = await analysis.watch_speech(text, agent)
+            if agent == "PRO":
+                pro_speech_text = text
+            scores[agent] += 1
+            history = history + [{"agent": agent, "round": round_num, "text": text, "flags": flags}]
+            yield sse_event({
+                "type": "speech",
+                "agent": agent,
+                "round": round_num,
+                "text": text,
+                "audio": "",
+                "score": scores[agent],
+                "winner": None,
+                "citations": [],
+                "quotes": [],
+                "flags": flags,
+                "human": True,
+            })
+            continue
+
+        # ── Generate queries (+ wikipedia_anchor + vector memory in parallel on round 1) ──
         if agent == "PRO":
-            if round_num == 1 and DEEP_RESEARCH:
-                queries, wiki, memory = await asyncio.gather(
-                    generate_pro_queries(topic, history, topic_meta, curveball, round_num),
-                    research_module.wikipedia_anchor(topic),
-                    vector_store.query_memory(topic),
-                )
-                topic_meta = {**topic_meta, "wikipedia_anchor": wiki, "memory": memory}
-            else:
-                queries = await generate_pro_queries(topic, history, topic_meta, curveball, round_num)
+            query_coro = generate_pro_queries(topic, history, topic_meta, curveball, round_num)
         else:
-            queries = await generate_con_queries(
+            query_coro = generate_con_queries(
                 topic, history, topic_meta, pro_speech_text, pro_sources, curveball, round_num
             )
+        if round_num == 1 and DEEP_RESEARCH and "wikipedia_anchor" not in topic_meta:
+            queries, wiki, memory = await asyncio.gather(
+                query_coro,
+                research_module.wikipedia_anchor(topic),
+                vector_store.query_memory(topic),
+            )
+            topic_meta = {**topic_meta, "wikipedia_anchor": wiki, "memory": memory}
+        else:
+            queries = await query_coro
 
         # ── Parallel Tavily searches across all queries ──
         results_list = await asyncio.gather(
@@ -237,10 +320,16 @@ async def run_round(
         if agent == "PRO":
             pro_speech_text = text
 
-        scores[agent] += 1
-        history = history + [{"agent": agent, "round": round_num, "text": text}]
+        # Quote check is local string matching; Manipulation Watch overlaps the TTS wait.
+        quotes = analysis.verify_quotes(text, sources)
+        watch_task = asyncio.create_task(analysis.watch_speech(text, agent, sources))
 
         audio_b64 = await tts_task
+        flags = await watch_task
+
+        scores[agent] += 1
+        history = history + [{"agent": agent, "round": round_num, "text": text, "flags": flags}]
+
         yield sse_event({
             "type": "speech",
             "agent": agent,
@@ -250,6 +339,8 @@ async def run_round(
             "score": scores[agent],
             "winner": None,
             "citations": citations,
+            "quotes": quotes,
+            "flags": flags,
         })
 
         await asyncio.sleep(0.1)
@@ -279,7 +370,11 @@ async def run_judge(
     topic_meta: dict,
     curveball: str | None = None,
     language: str = "en",
+    human_side: str | None = None,
 ) -> AsyncGenerator[str, None]:
+    # The rubric scorecard only needs the transcript, so it runs alongside the verdict.
+    score_task = asyncio.create_task(analysis.score_debate(topic, history, curveball))
+
     verdict_text, winner, citations = await judge(
         topic, history, research_log,
         judge_instruction=topic_meta.get("judge_instruction", ""),
@@ -288,15 +383,24 @@ async def run_judge(
         language=language,
     )
 
-    # Verdict TTS and both reflections (reflect + TTS) are independent — run them concurrently
-    # and emit in the original order.
+    # Verdict TTS, reflections (reflect + TTS), common ground and the coach report are
+    # independent — run them concurrently and emit in a fixed order.
     judge_tts = asyncio.create_task(synthesize(verdict_text, "JUDGE", language))
+    ground_task = asyncio.create_task(analysis.common_ground(topic, history, verdict_text, language))
+    coach_task = None
+    if human_side:
+        human_flags = [f for h in history if h["agent"] == human_side for f in h.get("flags", [])]
+        coach_task = asyncio.create_task(
+            analysis.coach_report(topic, history, human_side, human_flags, language)
+        )
 
     async def reflect_and_speak(agent: str) -> tuple[str, str]:
         text = await reflect(agent, topic, history, verdict_text, language=language)
         return text, await synthesize(text, agent, language)
 
-    reflect_tasks = {a: asyncio.create_task(reflect_and_speak(a)) for a in ("PRO", "CON")}
+    # The human speaks for themselves — only the AI side reflects.
+    ai_sides = [a for a in ("PRO", "CON") if a != human_side]
+    reflect_tasks = {a: asyncio.create_task(reflect_and_speak(a)) for a in ai_sides}
 
     yield sse_event({
         "type": "speech",
@@ -309,8 +413,12 @@ async def run_judge(
         "citations": citations,
     })
 
+    scorecard = await score_task
+    if scorecard:
+        yield sse_event({"type": "scorecard", "scores": scorecard})
+
     reflections_collected: dict[str, str] = {}
-    for agent in ("PRO", "CON"):
+    for agent in ai_sides:
         reflection_text, reflection_audio = await reflect_tasks[agent]
         reflections_collected[agent.lower()] = reflection_text
         yield sse_event({
@@ -319,6 +427,14 @@ async def run_judge(
             "text": reflection_text,
             "audio": reflection_audio,
         })
+
+    ground = await ground_task
+    if ground:
+        yield sse_event({"type": "common_ground", **ground})
+
+    coach = await coach_task if coach_task else {}
+    if coach:
+        yield sse_event({"type": "coach", "side": human_side, **coach})
 
     # Assemble and write artifact
     rounds_dict: dict[int, dict] = {}
@@ -349,6 +465,10 @@ async def run_judge(
         "rounds": [rounds_dict[k] for k in sorted(rounds_dict)],
         "judge": {"verdict": verdict_text, "winner": winner, "source_critique": ""},
         "reflections": reflections_collected,
+        "scorecard": scorecard,
+        "common_ground": ground,
+        "human_side": human_side,
+        "coach": coach,
     }
 
     filepath = await write_artifact(debate_artifact)
@@ -361,19 +481,22 @@ async def run_judge(
     yield "data: [DONE]\n\n"
 
 
-@app.post("/debate/round")
+@app.post("/debate/round", dependencies=[Depends(rate_limit)])
 async def round_endpoint(body: RoundRequest, request: Request):
-    # Classify topic on round 1; carry forward on subsequent rounds
-    if body.round_num == 1:
+    # Classify topic on round 1; carry forward on subsequent rounds (and when round 1
+    # resumes after a human turn, since the client already holds the classification).
+    if body.round_num == 1 and not body.topic_meta:
         topic_meta = await classify_topic(body.topic)
     else:
         topic_meta = body.topic_meta or {}
 
-    curveball = _clean_curveball(body.curveball)
+    curveball = _clean_text(body.curveball)
 
     async def stream() -> AsyncGenerator[bytes, None]:
         async for chunk in run_round(
-            body.topic, body.round_num, body.history, body.research_log, topic_meta, curveball, body.language
+            body.topic, body.round_num, body.history, body.research_log, topic_meta, curveball, body.language,
+            human_side=_clean_side(body.human_side),
+            human_speech=_clean_text(body.human_speech, limit=1500),
         ):
             if await request.is_disconnected():
                 break
@@ -390,13 +513,14 @@ async def round_endpoint(body: RoundRequest, request: Request):
     )
 
 
-@app.post("/debate/judge")
+@app.post("/debate/judge", dependencies=[Depends(rate_limit)])
 async def judge_endpoint(body: JudgeRequest, request: Request):
-    curveball = _clean_curveball(body.curveball)
+    curveball = _clean_text(body.curveball)
 
     async def stream() -> AsyncGenerator[bytes, None]:
         async for chunk in run_judge(
-            body.topic, body.history, body.research_log, body.topic_meta, curveball, body.language
+            body.topic, body.history, body.research_log, body.topic_meta, curveball, body.language,
+            human_side=_clean_side(body.human_side),
         ):
             if await request.is_disconnected():
                 break
@@ -438,6 +562,11 @@ async def live_endpoint(websocket: WebSocket, agent: str):
 
     if agent not in ("PRO", "CON", "JUDGE"):
         await websocket.send_json({"type": "error", "message": f"Unknown agent: {agent}"})
+        await websocket.close()
+        return
+
+    if _rate_limited(_client_ip(websocket)):
+        await websocket.send_json({"type": "error", "message": "Too many sessions from your network. Try again in a while."})
         await websocket.close()
         return
 

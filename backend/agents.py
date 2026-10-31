@@ -173,6 +173,13 @@ async def argue(
     if agent_instruction:
         system += f" {agent_instruction}"
     system += _language_instruction(language)
+    # Quotes are checked verbatim against the fetched sources (analysis.verify_quotes), which
+    # only works when the debate is in the sources' language.
+    if research and language in ("en", "en-IN"):
+        system += (
+            " When a source's exact wording makes your point, quote a short phrase from it "
+            "(under 15 words) verbatim inside double quotes. Never put a paraphrase in quotes."
+        )
     if curveball and round_number == 3:
         system += (
             f'\n\nAUDIENCE CHALLENGE (you must address this directly in your argument):\n'
