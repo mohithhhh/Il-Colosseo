@@ -1,6 +1,8 @@
-// Rubric scorecard — paired bars per criterion. Mark colors validated for CVD separation
-// against the dark arena surface (dataviz validate_palette.js); text stays in neutral ink.
-const SERIES = { PRO: "#3b82f6", CON: "#ef4444" };
+import { sideName } from "../speech";
+
+// Tale of the tape: each criterion scored 0–10, Maximus's bar grows left from the centre,
+// Nexus's grows right. Mark colours validated for CVD separation against the dark surface
+// (dataviz validate_palette.js); values and labels stay in neutral ink.
 const CRITERIA = [
   ["evidence", "Evidence"],
   ["rebuttal", "Rebuttal"],
@@ -9,26 +11,11 @@ const CRITERIA = [
   ["responsiveness", "Responsiveness"],
 ];
 
-const label = (side, humanSide) =>
-  side === humanSide ? "You" : side === "PRO" ? "Maximus" : "Nexus";
-
-function Bar({ side, value, name, criterion }) {
+function Track({ side, value, who, criterion }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "8px" }} title={`${name} · ${criterion}: ${value}/10`}>
-      <div style={{ flex: 1, height: "6px", borderRadius: "4px", background: "rgba(255,255,255,0.06)" }}>
-        <div
-          style={{
-            width: `${value * 10}%`,
-            height: "100%",
-            borderRadius: "4px",
-            background: SERIES[side],
-            transition: "width 0.6s ease",
-          }}
-        />
-      </div>
-      <span style={{ width: "18px", textAlign: "right", fontSize: "0.7rem", color: "rgba(255,255,255,0.6)" }}>
-        {value}
-      </span>
+    <div className={`tape__track tape__track--${side.toLowerCase()}`} title={`${who}, ${criterion}: ${value} out of 10`}>
+      <div className="tape__bar" style={{ width: `calc((100% - 2.4em) * ${value / 10})` }} />
+      <span className="tape__val">{value}</span>
     </div>
   );
 }
@@ -38,37 +25,28 @@ export default function ScorecardPanel({ scores, humanSide }) {
   const total = (side) => CRITERIA.reduce((sum, [key]) => sum + (scores[side][key] ?? 0), 0);
 
   return (
-    <div className="glass rounded-2xl fade-in w-full" style={{ padding: "20px 24px" }}>
-      <div className="flex items-center justify-between mb-3" style={{ flexWrap: "wrap", gap: "8px" }}>
-        <span className="text-white/70" style={{ fontWeight: 500, fontSize: "0.75rem", letterSpacing: "0.06em" }}>
-          Scorecard
-        </span>
-        {/* Legend — identity is never color alone */}
-        <div style={{ display: "flex", gap: "14px", fontSize: "0.7rem", color: "rgba(255,255,255,0.6)" }}>
-          {["PRO", "CON"].map((side) => (
-            <span key={side} style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
-              <span style={{ width: "10px", height: "10px", borderRadius: "3px", background: SERIES[side] }} />
-              {label(side, humanSide)} · {total(side)}/50
+    <section className="panel tape" aria-labelledby="tape-title">
+      <div className="tape__head">
+        {["PRO", "CON"].map((side, i) => (
+          <div key={side} className={`tape__side tape__side--${side.toLowerCase()}`} style={{ order: i * 2 }}>
+            <span className="tape__name">{sideName(side, humanSide)}</span>
+            <span className="tape__total">
+              {total(side)} <small>of 50</small>
             </span>
-          ))}
-        </div>
+          </div>
+        ))}
+        <h2 id="tape-title" className="tape__title" style={{ order: 1 }}>Scorecard</h2>
       </div>
-      <div style={{ height: "1px", background: "var(--glass-divider)", marginBottom: "14px" }} />
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+      <div className="tape__rows">
         {CRITERIA.map(([key, name]) => (
-          <div key={key} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <span style={{ width: "110px", flexShrink: 0, fontSize: "0.72rem", color: "rgba(255,255,255,0.55)" }}>
-              {name}
-            </span>
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "2px" }}>
-              {["PRO", "CON"].map((side) => (
-                <Bar key={side} side={side} value={scores[side][key] ?? 0} name={label(side, humanSide)} criterion={name} />
-              ))}
-            </div>
+          <div key={key} className="tape__row">
+            <Track side="PRO" value={scores.PRO[key] ?? 0} who={sideName("PRO", humanSide)} criterion={name} />
+            <span className="tape__crit">{name}</span>
+            <Track side="CON" value={scores.CON[key] ?? 0} who={sideName("CON", humanSide)} criterion={name} />
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 }

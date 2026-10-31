@@ -1,150 +1,55 @@
-import { useRef, useEffect } from "react";
+import SpeechText from "./SpeechText";
+import { doneStreaming, sideName } from "../speech";
 
-const VERDICT_CLASS = {
-  PRO: "verdict-pro",
-  CON: "verdict-con",
-  TIE: "verdict-tie",
-};
+function winnerLine(winner, humanSide) {
+  if (winner === "TIE") return "A draw";
+  if (winner === humanSide) return "You win";
+  return `${sideName(winner, humanSide)} wins`;
+}
 
-const VERDICT_LABEL = {
-  PRO: "Pro wins",
-  CON: "Con wins",
-  TIE: "Tie",
-};
-
-export default function JudgePanel({ data, curveball }) {
-  const bodyRef = useRef(null);
-
-  useEffect(() => {
-    if (bodyRef.current) {
-      bodyRef.current.scrollTop = bodyRef.current.scrollHeight;
-    }
-  }, [data.displayText]);
-
-  const verdictClass = data.winner ? VERDICT_CLASS[data.winner] : "";
-  const verdictLabel = data.winner ? VERDICT_LABEL[data.winner] : "";
+// Arbitrus's verdict. The winner is carved in only once the reasoning has been read out.
+export default function JudgePanel({ data, curveball, humanSide }) {
+  const done = doneStreaming(data);
 
   return (
-    <div
-      className="glass rounded-2xl fade-in w-full"
-      style={{ padding: "20px 24px" }}
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between mb-3">
-        <span
-          className="text-white/70"
-          style={{ fontWeight: 500, fontSize: "0.75rem", letterSpacing: "0.06em" }}
-        >
-          Arbitrus
-        </span>
-      </div>
+    <section className="panel verdict" aria-labelledby="verdict-title">
+      <header className="verdict__head">
+        <span className="medallion medallion--judge" aria-hidden="true">A</span>
+        <div>
+          <h2 id="verdict-title" className="verdict__by">The verdict</h2>
+          <span className="label">from Arbitrus, the judge</span>
+        </div>
+      </header>
 
-      {/* Divider */}
-      <div
-        style={{
-          height: "1px",
-          background: "var(--glass-divider)",
-          marginBottom: "16px",
-        }}
-      />
+      {done && data.winner && (
+        <p className={`verdict__winner verdict__winner--${data.winner.toLowerCase()}`} role="status">
+          {winnerLine(data.winner, humanSide)}
+        </p>
+      )}
 
-      {/* Verdict text */}
-      <div
-        ref={bodyRef}
-        className="agent-body"
-        style={{
-          lineHeight: 1.8,
-          fontWeight: 300,
-          fontSize: "0.875rem",
-          color: "rgba(255,255,255,0.85)",
-          maxHeight: "120px",
-        }}
-      >
-        {data.displayText || (
-          <span style={{ color: "rgba(255,255,255,0.2)", fontStyle: "italic" }}>
-            Deliberating...
-          </span>
+      <div className="verdict__text">
+        {data.displayText ? (
+          // The "Winner: X" line is for the backend's parser; the inscription above says it.
+          <SpeechText text={data.displayText.replace(/^\s*\**Winner:.*$/im, "")} />
+        ) : (
+          <p className="label">Weighing the arguments…</p>
         )}
       </div>
 
-      {/* Grounding citations */}
-      {data.citations && data.citations.length > 0 && (
-        <div style={{ marginTop: "14px", display: "flex", flexWrap: "wrap", gap: "6px" }}>
+      {done && data.citations?.length > 0 && (
+        <div className="cites">
           {data.citations.map((c, i) => (
-            <a
-              key={i}
-              href={c.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                fontSize: "0.68rem",
-                fontWeight: 400,
-                color: "rgba(255,255,255,0.4)",
-                textDecoration: "none",
-                padding: "4px 9px",
-                background: "rgba(255,255,255,0.05)",
-                borderRadius: "8px",
-                border: "1px solid rgba(255,255,255,0.1)",
-                letterSpacing: "0.02em",
-                transition: "color 0.15s",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.75)")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.4)")}
-            >
-              {c.title || c.domain || c.url}
-            </a>
+            <a key={i} href={c.url} target="_blank" rel="noopener noreferrer">{c.title || c.domain || c.url}</a>
           ))}
         </div>
       )}
 
-      {/* Audience challenge section */}
       {curveball && (
-        <div style={{ marginTop: "16px" }}>
-          <div style={{ height: "0.5px", background: "rgba(255,255,255,0.1)", marginBottom: "10px" }} />
-          <span
-            style={{
-              fontSize: "0.6rem",
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              color: "rgba(255,255,255,0.28)",
-              fontWeight: 500,
-            }}
-          >
-            On the audience challenge
-          </span>
-          <p
-            style={{
-              marginTop: "8px",
-              marginBottom: 0,
-              fontStyle: "italic",
-              fontSize: "0.82rem",
-              color: "rgba(212,169,106,0.65)",
-              lineHeight: 1.7,
-            }}
-          >
-            "{curveball}"
-          </p>
-        </div>
+        <p className="verdict__challenge">
+          <span className="label">The crowd's challenge was</span>
+          <q>{curveball}</q>
+        </p>
       )}
-
-      {/* Verdict banner */}
-      {data.winner && (
-        <div
-          className={`rounded-xl mt-4 flex items-center justify-center backdrop-filter-blur ${verdictClass}`}
-          style={{
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
-            padding: "10px 20px",
-          }}
-        >
-          <span
-            className="text-white/80"
-            style={{ fontWeight: 500, fontSize: "0.8rem" }}
-          >
-            {verdictLabel}
-          </span>
-        </div>
-      )}
-    </div>
+    </section>
   );
 }

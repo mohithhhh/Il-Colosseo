@@ -1,29 +1,28 @@
 import AgentCard from "./AgentCard";
 
-export default function RoundRow({ roundData, curveball }) {
-  return (
-    <div className="fade-in" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-      {/* Round label with flanking divider lines */}
-      <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-        <div style={{ flex: 1, height: "1px", background: "var(--glass-divider)" }} />
-        <span
-          style={{
-            fontSize: "0.68rem",
-            fontWeight: 500,
-            color: "rgba(255,255,255,0.3)",
-            letterSpacing: "0.1em",
-          }}
-        >
-          ROUND {roundData.round}
-        </span>
-        <div style={{ flex: 1, height: "1px", background: "var(--glass-divider)" }} />
-      </div>
+const NUMERAL = { 1: "I", 2: "II", 3: "III" };
 
-      {/* PRO and CON cards side by side */}
-      <div style={{ display: "flex", gap: "16px" }}>
-        <AgentCard agent="PRO" data={roundData.PRO} round={roundData.round} curveball={curveball} />
-        <AgentCard agent="CON" data={roundData.CON} round={roundData.round} curveball={curveball} />
+// One round: numeral, the crowd's challenge in round III, then the two speeches side by side.
+// `composer` replaces the human's speech slot while it's their turn.
+export default function RoundRow({ roundData, curveball, humanSide, composer }) {
+  return (
+    <section className="round">
+      <h2 className="round__head">
+        <span className="round__numeral" aria-hidden="true">{NUMERAL[roundData.round] ?? roundData.round}</span>
+        <span className="sr-only">Round {roundData.round}</span>
+      </h2>
+      {curveball && roundData.round === 3 && (
+        <p className="challenge">The crowd demands an answer: <q>{curveball}</q></p>
+      )}
+      <div className="duel">
+        {["PRO", "CON"].map((side) =>
+          composer && side === humanSide ? (
+            <div key={side}>{composer}</div>
+          ) : (
+            <AgentCard key={side} agent={side} data={roundData[side]} />
+          )
+        )}
       </div>
-    </div>
+    </section>
   );
 }

@@ -1,15 +1,15 @@
 import { useState } from "react";
 
 const PRESETS = [
-  "AI Singularity",
-  "Remote Work Culture",
-  "Sustainability",
-  "Digital Privacy",
+  "AI will create more jobs than it destroys",
+  "Remote work beats the office",
+  "Social media does more harm than good",
+  "Privacy matters more than security",
 ];
 
 // BCP-47 codes match Sarvam Bulbul v3's supported TTS languages (backend/tts.py).
 // "en" keeps the existing English pipeline (Fish Audio) untouched.
-export const LANGUAGES = [
+const LANGUAGES = [
   { code: "en", label: "English" },
   { code: "hi-IN", label: "हिन्दी" },
   { code: "ta-IN", label: "தமிழ்" },
@@ -24,138 +24,78 @@ export const LANGUAGES = [
 ];
 
 // Human vs AI: null = watch two AIs; "PRO"/"CON" = the user argues that side.
-const SIDES = [
-  { value: null, label: "Watch" },
-  { value: "PRO", label: "Argue for" },
-  { value: "CON", label: "Argue against" },
+const ROLES = [
+  { value: null, name: "Watch", hint: "Maximus and Nexus argue. You listen.", cls: "" },
+  { value: "PRO", name: "Argue for", hint: "Take Maximus's place and defend the motion.", cls: "role--pro" },
+  { value: "CON", name: "Argue against", hint: "Take Nexus's place and oppose it.", cls: "role--con" },
 ];
 
-export default function TopicInput({ onStart, disabled, language, onLanguageChange }) {
+export default function TopicInput({ onStart, language, onLanguageChange }) {
   const [topic, setTopic] = useState("");
   const [humanSide, setHumanSide] = useState(null);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const trimmed = topic.trim();
-    if (trimmed) onStart(trimmed, language, humanSide);
-  };
-
-  const handlePreset = (preset) => {
-    setTopic(preset);
-  };
+  const trimmed = topic.trim();
 
   return (
-    <div className="flex flex-col items-center gap-4 w-full max-w-2xl mx-auto">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full flex items-center glass-pill overflow-hidden topic-input-form"
-        style={{ padding: "6px 6px 6px 20px" }}
-      >
-        <input
-          type="text"
-          value={topic}
-          onChange={(e) => setTopic(e.target.value)}
-          placeholder="What's the next great debate?"
-          disabled={disabled}
-          className="flex-1 bg-transparent border-none outline-none text-white placeholder-white/40 text-sm"
-          style={{ fontWeight: 300, fontSize: "0.9rem" }}
-        />
-        <button
-          type="submit"
-          disabled={disabled || !topic.trim()}
-          className="glass-pill px-5 py-2 text-white/90 text-sm transition-opacity duration-150"
-          style={{
-            fontWeight: 500,
-            fontSize: "0.8rem",
-            opacity: disabled || !topic.trim() ? 0.4 : 0.9,
-            cursor: disabled || !topic.trim() ? "not-allowed" : "pointer",
-          }}
-          onMouseEnter={(e) => {
-            if (!disabled && topic.trim()) e.currentTarget.style.opacity = "1";
-          }}
-          onMouseLeave={(e) => {
-            if (!disabled && topic.trim()) e.currentTarget.style.opacity = "0.9";
-          }}
-        >
-          Begin
-        </button>
-      </form>
-
-      <div className="flex flex-wrap justify-center gap-2">
-        {PRESETS.map((preset) => (
-          <button
-            key={preset}
-            onClick={() => handlePreset(preset)}
-            disabled={disabled}
-            className="glass-pill px-3 py-1 text-white/55 text-xs transition-opacity duration-150"
-            style={{
-              fontWeight: 300,
-              cursor: disabled ? "not-allowed" : "pointer",
-              opacity: disabled ? 0.3 : 1,
-            }}
-          >
-            {preset}
-          </button>
-        ))}
-      </div>
-
-      <div className="glass-pill flex items-center gap-1 p-1" role="radiogroup" aria-label="Your role">
-        {SIDES.map(({ value, label }) => (
-          <button
-            key={label}
-            type="button"
-            role="radio"
-            aria-checked={humanSide === value}
-            onClick={() => setHumanSide(value)}
-            disabled={disabled}
-            className="rounded-full px-3 py-1"
-            style={{
-              fontSize: "0.72rem",
-              fontWeight: humanSide === value ? 500 : 300,
-              color: humanSide === value ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.5)",
-              background: humanSide === value ? "rgba(255,255,255,0.14)" : "transparent",
-              border: "none",
-              cursor: disabled ? "not-allowed" : "pointer",
-            }}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
-      <label className="glass-pill flex items-center gap-2 px-4 py-1.5">
-        <span
-          style={{
-            fontSize: "0.62rem",
-            fontWeight: 500,
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            color: "rgba(255,255,255,0.35)",
-          }}
-        >
-          Language
-        </span>
-        <select
-          value={language}
-          onChange={(e) => onLanguageChange(e.target.value)}
-          disabled={disabled}
-          style={{
-            background: "transparent",
-            border: "none",
-            outline: "none",
-            color: "rgba(255,255,255,0.8)",
-            fontSize: "0.78rem",
-            fontWeight: 400,
-            cursor: disabled ? "not-allowed" : "pointer",
-          }}
-        >
-          {LANGUAGES.map(({ code, label }) => (
-            <option key={code} value={code} style={{ background: "#1a1a1a", color: "#fff" }}>
-              {label}
-            </option>
+    <form
+      className="motion"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (trimmed) onStart(trimmed, language, humanSide);
+      }}
+    >
+      <div>
+        <label htmlFor="motion" className="label motion__label">The motion</label>
+        <div className="motion__field">
+          <input
+            id="motion"
+            type="text"
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+            placeholder="Type any claim worth fighting over"
+            autoComplete="off"
+          />
+        </div>
+        <div className="suggestions">
+          {PRESETS.map((preset) => (
+            <button key={preset} type="button" className="chip" onClick={() => setTopic(preset)}>
+              {preset}
+            </button>
           ))}
-        </select>
-      </label>
-    </div>
+        </div>
+      </div>
+
+      <fieldset className="roles">
+        <legend className="label">Your role</legend>
+        <div className="roles__grid" role="radiogroup" aria-label="Your role">
+          {ROLES.map(({ value, name, hint, cls }) => (
+            <button
+              key={name}
+              type="button"
+              role="radio"
+              aria-checked={humanSide === value}
+              className={`role ${cls}`}
+              onClick={() => setHumanSide(value)}
+            >
+              <span className="role__name">{name}</span>
+              <span className="role__hint">{hint}</span>
+            </button>
+          ))}
+        </div>
+      </fieldset>
+
+      <div className="motion__actions">
+        <label className="lang">
+          Language
+          <select value={language} onChange={(e) => onLanguageChange(e.target.value)}>
+            {LANGUAGES.map(({ code, label }) => (
+              <option key={code} value={code}>{label}</option>
+            ))}
+          </select>
+        </label>
+        <button type="submit" className="btn btn--primary" disabled={!trimmed}>
+          Begin the debate
+        </button>
+      </div>
+    </form>
   );
 }

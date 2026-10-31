@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDebate } from "./hooks/useDebate";
 import TopicInput from "./components/TopicInput";
 import RoundRow from "./components/RoundRow";
@@ -10,20 +10,34 @@ import ScorecardPanel from "./components/ScorecardPanel";
 import CommonGroundPanel from "./components/CommonGroundPanel";
 import CoachPanel from "./components/CoachPanel";
 import { TruthStart, TruthReveal } from "./components/TruthMode";
-const BG = "url('/bg.webp')";
-const SCRIM_LANDING = "rgba(8, 8, 12, 0.55)";
-const SCRIM_ARENA = "rgba(8, 8, 12, 0.80)";
+import { NAME, INITIAL, phase, doneStreaming, sideName } from "./speech";
+
+const STEPS = ["I", "II", "III", "Verdict"];
+const emptyTurn = { text: "", displayText: "", sources: [] };
+const Dots = () => <span className="dots" aria-hidden="true"><i /><i /><i /></span>;
+
+function Fighter({ side, humanSide, live, state }) {
+  const cls = side === "PRO" ? "pro" : "con";
+  return (
+    <div className={`fighter fighter--${cls}`}>
+      <span className={`medallion medallion--${cls} ${live ? "is-live" : ""}`} aria-hidden="true">
+        {side === humanSide ? "Y" : INITIAL[side]}
+      </span>
+      <div>
+        <div className="fighter__name">{sideName(side, humanSide)}</div>
+        <div className="fighter__state">{state}</div>
+      </div>
+    </div>
+  );
+}
 
 export default function App() {
   const { state, start, proceed, reset, startListening, submitCurveball, submitHumanSpeech } = useDebate();
   const {
-    status, pendingAction, rounds, judge, reflections,
-    warnings, artifactPath,
-    curveball, voiceDraft, awaitingCurveball, isListening,
-    error,
+    status, pendingAction, rounds, judge, reflections, warnings,
+    curveball, voiceDraft, awaitingCurveball, isListening, error,
     humanSide, awaitingHuman, scorecard, commonGround, coach,
   } = state;
-  const scrollRef = useRef(null);
   const [dismissedWarnings, setDismissedWarnings] = useState([]);
   const [liveTopic, setLiveTopic] = useState("");
   const [showLive, setShowLive] = useState(false);
@@ -46,288 +60,166 @@ export default function App() {
 
   const handleReset = () => {
     setTruth(null);
+    setDismissedWarnings([]);
     reset();
   };
 
   const isIdle = status === "idle";
-  const showJudge = !isIdle && judge.text !== "";
-  const showReflections =
-    reflections.PRO.displayText !== "" || reflections.CON.displayText !== "";
-  const activeWarnings = warnings.filter((_, i) => !dismissedWarnings.includes(i));
-  const showCurveballPill = curveball && rounds.some((r) => r.round === 3);
+  const last = rounds.at(-1);
+  const humanTurn = awaitingHuman && status === "waiting";
+  // The human's speech slot: the open round if their side hasn't spoken in it, else the next one.
+  const humanRound = humanTurn && (last && !last[humanSide]?.text ? last.round : (last?.round ?? 0) + 1);
+  const shownRounds =
+    humanTurn && humanRound > (last?.round ?? 0)
+      ? [...rounds, { round: humanRound, PRO: emptyTurn, CON: emptyTurn }]
+      : rounds;
 
-  // Auto-scroll arena to bottom when new content appears
+  const judging = judge.text !== "";
+  const roundsDone = last?.round === 3 && phase(last.PRO) === "done" && phase(last.CON) === "done";
+  const deliberating = status === "running" && roundsDone && !judging;
+  const step = judging || deliberating ? 4 : (shownRounds.at(-1)?.round ?? 1);
+
+  const fighterState = (side) => {
+    if (side === humanSide && humanTurn) return "Your turn";
+    const p = phase(shownRounds.at(-1)?.[side]);
+    if (status === "running" && p === "researching") return "Researching";
+    if (status === "running" && p === "speaking") return "Speaking";
+    return side === "PRO" ? "For the motion" : "Against the motion";
+  };
+  const isLive = (side) => status === "running" && phase(last?.[side]) === "speaking" && !judging;
+
+  // What the arena is waiting on, when nothing on screen says so already.
+  const lastPhases = last ? [phase(last.PRO), phase(last.CON)] : [];
+  const busy = status === "running" && !judging && !lastPhases.includes("speaking") && !lastPhases.includes("researching");
+  const nextUp = ["PRO", "CON"].find((s) => s !== humanSide && !phase(last?.[s]));
+  const statusLine = deliberating
+    ? `${NAME.JUDGE} is weighing the arguments`
+    : busy
+      ? rounds.length === 0
+        ? "Reading up on the motion"
+        : nextUp
+          ? `${NAME[nextUp]} is preparing`
+          : "Preparing the next round"
+      : null;
+
+  // Follow new content, but only if the reader is already near the bottom.
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [rounds.length, judge.text, reflections.PRO.displayText, reflections.CON.displayText, pendingAction, awaitingCurveball, curveball, awaitingHuman, scorecard, commonGround, coach, status]);
+    const nearBottom = window.innerHeight + window.scrollY > document.body.scrollHeight - 400;
+    if (!isIdle && nearBottom) window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+  }, [isIdle, rounds, judge.displayText, reflections, pendingAction, awaitingCurveball, awaitingHuman, scorecard, commonGround, coach, status]);
 
-  // ── Landing page ──
+  const overlays = (
+    <>
+      {showLive && <LiveArenaPanel topic={liveTopic} onClose={() => setShowLive(false)} />}
+      {showTruth && <TruthStart onStart={handleTruthStart} onClose={() => setShowTruth(false)} />}
+    </>
+  );
+
+  // ── Landing ──
   if (isIdle) {
     return (
-      <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          backgroundImage: BG,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background: SCRIM_LANDING,
-            pointerEvents: "none",
-          }}
-        />
-        <div
-          style={{
-            position: "relative",
-            zIndex: 1,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "2rem",
-            width: "100%",
-            padding: "0 24px",
-          }}
-        >
-          <h1
-            className="font-cinzel"
-            style={{
-              margin: 0,
-              fontWeight: 600,
-              fontSize: "2.8rem",
-              color: "rgba(255,255,255,0.95)",
-              letterSpacing: "0.04em",
-            }}
-          >
-            Il Colosseo
-          </h1>
-          <p
-            style={{
-              margin: "-1.6rem 0 0",
-              fontWeight: 300,
-              fontSize: "0.85rem",
-              color: "rgba(255,255,255,0.4)",
-              letterSpacing: "0.06em",
-              textAlign: "center",
-            }}
-          >
-            Built for gladiators. Rebuilt for intelligence.
-          </p>
-          <TopicInput onStart={handleStart} disabled={false} language={language} onLanguageChange={setLanguage} />
-          {error && (
-            <p
-              style={{
-                color: "rgba(252,165,165,0.8)",
-                fontWeight: 300,
-                fontSize: "0.8rem",
-                margin: 0,
-              }}
-            >
-              {error}
+      <>
+        <div className="backdrop" data-mode="landing" />
+        <main className="landing">
+          <div className="landing__inner">
+            <h1 className="inscription">Il Colosseo</h1>
+            <p className="tagline">
+              Two AI gladiators research any motion live, argue it over three rounds, and face a judge. Watch, or step
+              into the ring yourself.
             </p>
-          )}
-          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", justifyContent: "center" }}>
-            <button
-              onClick={() => setShowLive(true)}
-              className="glass-pill px-4 py-2 text-white/60 text-xs"
-              style={{ fontWeight: 500, cursor: "pointer", fontSize: "0.72rem" }}
-            >
-              🎙️ Enter the Arena
-            </button>
-            <button
-              onClick={() => setShowTruth(true)}
-              className="glass-pill px-4 py-2 text-white/60 text-xs"
-              style={{ fontWeight: 500, cursor: "pointer", fontSize: "0.72rem" }}
-            >
-              ⚖️ Truth Mode
-            </button>
+            {error && <p className="alert" role="alert" style={{ marginBottom: 20 }}>{error}</p>}
+            <TopicInput onStart={handleStart} language={language} onLanguageChange={setLanguage} />
+            <div className="elsewhere">
+              <button className="elsewhere__item" onClick={() => setShowTruth(true)}>
+                <span className="elsewhere__title">Truth Mode</span>
+                <span className="elsewhere__hint">Call a claim true or false, watch it debated, then see if you changed your mind.</span>
+              </button>
+              <button className="elsewhere__item" onClick={() => setShowLive(true)}>
+                <span className="elsewhere__title">Live voice</span>
+                <span className="elsewhere__hint">Talk to a gladiator out loud, in real time.</span>
+              </button>
+            </div>
           </div>
-        </div>
-        {showLive && <LiveArenaPanel topic={liveTopic} onClose={() => setShowLive(false)} />}
-        {showTruth && <TruthStart onStart={handleTruthStart} onClose={() => setShowTruth(false)} />}
-      </div>
+        </main>
+        {overlays}
+      </>
     );
   }
 
-  // ── Arena page ──
+  // ── Arena ──
+  const composer = humanTurn && (
+    <CurveballPanel
+      variant={humanSide.toLowerCase()}
+      voiceDraft={voiceDraft}
+      isListening={isListening}
+      onStartListening={startListening}
+      onSubmit={submitHumanSpeech}
+      title={`Your turn: ${humanSide === "PRO" ? "argue for" : "argue against"} the motion`}
+      hint={humanRound === 1 ? "Open with your strongest points." : `Answer ${NAME[humanSide === "PRO" ? "CON" : "PRO"]}, then press your case.`}
+      placeholder="Make your points, cite evidence, rebut your opponent…"
+      submitLabel="Deliver your speech"
+      maxLength={1500}
+    />
+  );
+
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        backgroundImage: BG,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: SCRIM_ARENA,
-          pointerEvents: "none",
-        }}
-      />
-      <div
-        style={{
-          position: "relative",
-          zIndex: 1,
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          padding: "20px 32px 0",
-        }}
-      >
-        {/* Header */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-            marginBottom: "20px",
-            flexShrink: 0,
-          }}
-        >
-          <h1
-            className="font-cinzel"
-            style={{
-              margin: 0,
-              fontWeight: 600,
-              fontSize: "0.9rem",
-              color: "rgba(255,255,255,0.4)",
-              letterSpacing: "0.08em",
-            }}
-          >
-            Il Colosseo
-          </h1>
-          <button
-            onClick={handleReset}
-            className="glass-pill px-3 py-1 text-white/40 text-xs"
-            style={{ fontWeight: 500, cursor: "pointer", fontSize: "0.72rem" }}
-          >
-            Reset
-          </button>
-          <button
-            onClick={() => setShowLive(true)}
-            className="glass-pill px-3 py-1 text-white/40 text-xs"
-            style={{ fontWeight: 500, cursor: "pointer", fontSize: "0.72rem" }}
-          >
-            🎙️ Enter the Arena
-          </button>
-        </div>
-        {showLive && <LiveArenaPanel topic={liveTopic} onClose={() => setShowLive(false)} />}
-
-        {/* Warning banners — dismissible frosted glass */}
-        {activeWarnings.length > 0 && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "12px", flexShrink: 0 }}>
-            {warnings.map((msg, i) =>
-              dismissedWarnings.includes(i) ? null : (
-                <div
-                  key={i}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: "12px",
-                    padding: "10px 16px",
-                    borderRadius: "12px",
-                    background: "rgba(251,191,36,0.08)",
-                    border: "1px solid rgba(251,191,36,0.22)",
-                    backdropFilter: "blur(12px)",
-                    WebkitBackdropFilter: "blur(12px)",
-                  }}
-                >
-                  <span style={{ fontSize: "0.78rem", color: "rgba(251,191,36,0.85)", fontWeight: 400 }}>
-                    ⚠ {msg}
-                  </span>
-                  <button
-                    onClick={() => setDismissedWarnings((d) => [...d, i])}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      color: "rgba(251,191,36,0.5)",
-                      cursor: "pointer",
-                      fontSize: "0.9rem",
-                      lineHeight: 1,
-                      padding: "0 2px",
-                      flexShrink: 0,
-                    }}
-                  >
-                    ×
-                  </button>
-                </div>
-              )
-            )}
-          </div>
-        )}
-
-        {/* Scrollable rounds — each round appears below the previous */}
-        <div
-          ref={scrollRef}
-          className="arena-scroll"
-          style={{
-            flex: 1,
-            overflowY: "auto",
-            display: "flex",
-            flexDirection: "column",
-            gap: "28px",
-            paddingBottom: "32px",
-          }}
-        >
-          {/* Loading state — shown while waiting for first SSE event */}
-          {status === "running" && rounds.length === 0 && (
-            <div style={{
-              flex: 1,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "20px",
-              minHeight: "60vh",
-            }}>
-              <p className="font-cinzel arena-loading-text" style={{
-                fontSize: "1rem",
-                color: "rgba(255,255,255,0.45)",
-                letterSpacing: "0.14em",
-                margin: 0,
-              }}>
-                The gladiators are preparing
-              </p>
-              <div style={{ display: "flex", gap: "10px" }}>
-                {[0, 1, 2].map((i) => (
-                  <div
-                    key={i}
-                    className="loading-dot"
-                    style={{ animationDelay: `${i * 0.25}s` }}
-                  />
-                ))}
-              </div>
+    <>
+      <div className="backdrop" data-mode="arena" />
+      <div className="arena">
+        <header className="topbar">
+          <div className="topbar__row">
+            <span className="wordmark">Il Colosseo</span>
+            <p className="topbar__motion" title={liveTopic}>{liveTopic}</p>
+            <div className="topbar__actions">
+              <button className="btn btn--quiet" onClick={() => setShowLive(true)}>Live voice</button>
+              <button className="btn btn--quiet" onClick={handleReset}>New debate</button>
             </div>
+          </div>
+          <div className="standings">
+            <Fighter side="PRO" humanSide={humanSide} live={isLive("PRO")} state={fighterState("PRO")} />
+            <ol className="tracker" aria-label="Progress">
+              {STEPS.map((s, i) => (
+                <li
+                  key={s}
+                  data-state={status === "complete" || i + 1 < step ? "done" : i + 1 === step ? "now" : "next"}
+                  aria-current={i + 1 === step && status !== "complete" ? "step" : undefined}
+                  aria-label={i < 3 ? `Round ${i + 1}` : "Verdict"}
+                >
+                  {s}
+                </li>
+              ))}
+            </ol>
+            <Fighter side="CON" humanSide={humanSide} live={isLive("CON")} state={fighterState("CON")} />
+          </div>
+        </header>
+
+        <main className="floor">
+          {warnings.map((msg, i) =>
+            dismissedWarnings.includes(i) ? null : (
+              <div key={i} className="notice" role="status">
+                <span>{msg}</span>
+                <button onClick={() => setDismissedWarnings((d) => [...d, i])} aria-label="Dismiss">×</button>
+              </div>
+            )
           )}
 
-          {rounds.map((roundData) => (
-            <RoundRow key={roundData.round} roundData={roundData} curveball={curveball} />
+          {shownRounds.map((roundData) => (
+            <RoundRow
+              key={roundData.round}
+              roundData={roundData}
+              curveball={curveball}
+              humanSide={humanSide}
+              composer={roundData.round === humanRound ? composer : null}
+            />
           ))}
 
-          {/* Inter-round loading dots */}
-          {status === "running" && rounds.length > 0 && !judge.text && (
-            <div style={{ display: "flex", justifyContent: "center", gap: "10px", padding: "4px 0" }}>
-              {[0, 1, 2].map((i) => (
-                <div key={i} className="loading-dot" style={{ animationDelay: `${i * 0.25}s` }} />
-              ))}
-            </div>
+          {statusLine && (
+            <p className="status-line" role="status">
+              {statusLine}
+              <Dots />
+            </p>
           )}
 
-          {/* Audience curveball input — appears after round 2, before Start Round 3 */}
           {awaitingCurveball && (
             <CurveballPanel
               voiceDraft={voiceDraft}
@@ -337,125 +229,19 @@ export default function App() {
             />
           )}
 
-          {/* Human vs AI — the user's turn */}
-          {awaitingHuman && status === "waiting" && (
-            <CurveballPanel
-              voiceDraft={voiceDraft}
-              isListening={isListening}
-              onStartListening={startListening}
-              onSubmit={submitHumanSpeech}
-              title={`Your turn · ${humanSide === "PRO" ? "arguing for" : "arguing against"}`}
-              micLabel="Speak your argument"
-              placeholder="Or type your argument — make your points, cite evidence, rebut your opponent..."
-              submitLabel="Deliver your argument"
-              maxLength={1500}
-            />
-          )}
-
-          {/* Round / Judge proceed button */}
           {pendingAction !== null && (
-            <div style={{ display: "flex", justifyContent: "center", padding: "4px 0 8px" }}>
-              <button
-                onClick={proceed}
-                className="font-cinzel"
-                style={{
-                  padding: "10px 44px",
-                  borderRadius: "100px",
-                  fontSize: "0.75rem",
-                  fontWeight: 600,
-                  letterSpacing: "0.12em",
-                  textTransform: "uppercase",
-                  color: "rgba(255,255,255,0.8)",
-                  background: "rgba(255,255,255,0.07)",
-                  border: "1px solid rgba(255,255,255,0.18)",
-                  cursor: "pointer",
-                  transition: "background 0.2s, color 0.2s",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "rgba(255,255,255,0.13)";
-                  e.currentTarget.style.color = "rgba(255,255,255,0.95)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "rgba(255,255,255,0.07)";
-                  e.currentTarget.style.color = "rgba(255,255,255,0.8)";
-                }}
-              >
-                {pendingAction === "judge"
-                  ? "Judge"
-                  : `Start Round ${pendingAction}`}
+            <div className="proceed">
+              <button className="btn btn--primary" onClick={proceed}>
+                {pendingAction === "judge" ? "Hear the verdict" : `Start round ${pendingAction}`}
               </button>
             </div>
           )}
 
-          {/* Curveball confirmation pill — visible during and after round 3 */}
-          {showCurveballPill && (
-            <div className="fade-in" style={{ display: "flex", justifyContent: "center" }}>
-              <div
-                className="glass-pill"
-                style={{
-                  padding: "8px 20px",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: "4px",
-                  maxWidth: "480px",
-                  textAlign: "center",
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: "0.6rem",
-                    letterSpacing: "0.1em",
-                    textTransform: "uppercase",
-                    color: "rgba(255,255,255,0.28)",
-                    fontWeight: 500,
-                  }}
-                >
-                  Round 3 constraint:
-                </span>
-                <span
-                  style={{
-                    fontStyle: "italic",
-                    fontSize: "0.8rem",
-                    color: "rgba(212,169,106,0.75)",
-                    lineHeight: 1.5,
-                  }}
-                >
-                  {curveball}
-                </span>
-              </div>
-            </div>
-          )}
+          {judging && <JudgePanel data={judge} curveball={curveball} humanSide={humanSide} />}
+          {judging && doneStreaming(judge) && <ScorecardPanel scores={scorecard} humanSide={humanSide} />}
 
-          {showJudge && <JudgePanel data={judge} curveball={curveball} />}
-
-          {showJudge && <ScorecardPanel scores={scorecard} humanSide={humanSide} />}
-
-          {/* Artifact saved pill */}
-          {artifactPath && (
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <div
-                className="glass-pill"
-                style={{
-                  padding: "6px 14px",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: "2px",
-                }}
-              >
-                <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.55)", fontWeight: 500 }}>
-                  Debate saved
-                </span>
-                <span style={{ fontSize: "0.69rem", color: "rgba(255,255,255,0.28)", fontFamily: "monospace" }}>
-                  {artifactPath}
-                </span>
-              </div>
-            </div>
-          )}
-
-          {showReflections && (
-            <div style={{ display: "flex", gap: "16px" }}>
+          {(reflections.PRO.displayText || reflections.CON.displayText) && (
+            <div className="thoughts">
               <ReflectionCard agent="PRO" displayText={reflections.PRO.displayText} />
               <ReflectionCard agent="CON" displayText={reflections.CON.displayText} />
             </div>
@@ -465,9 +251,15 @@ export default function App() {
           <CoachPanel data={coach} />
 
           {truth && status === "complete" && <TruthReveal truth={truth} winner={judge.winner} />}
-        </div>
-      </div>
 
-    </div>
+          {status === "complete" && (
+            <div className="proceed">
+              <button className="btn" onClick={handleReset}>Start a new debate</button>
+            </div>
+          )}
+        </main>
+      </div>
+      {overlays}
+    </>
   );
 }
