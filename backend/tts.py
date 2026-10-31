@@ -29,15 +29,16 @@ SARVAM_SPEAKER_MAP = {
 async def synthesize(text: str, agent: str, language: str = "en") -> str:
     """Synthesize speech for the given agent.
 
-    Routes to Sarvam Bulbul v3 for non-English debate languages (it doesn't speak
-    English as naturally), and Fish Audio S2 Pro for English. Returns base64-encoded
+    Routes to Sarvam Bulbul v3 for non-English debate languages, and Fish Audio S2 Pro
+    for English, falling back to Sarvam en-IN when Fish fails. Returns base64-encoded
     audio, or '' on failure/missing key — the frontend falls back to Web Speech API.
     """
     if not text:
         return ""
     if language and language != "en":
         return await _synthesize_sarvam(text, agent, language)
-    return await _synthesize_fish(text, agent)
+    # Fish missing or failing (no key, no credits) → Sarvam's Indian English before the browser voice.
+    return await _synthesize_fish(text, agent) or await _synthesize_sarvam(text, agent, "en-IN")
 
 
 async def _synthesize_fish(text: str, agent: str) -> str:

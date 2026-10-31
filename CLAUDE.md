@@ -43,7 +43,7 @@ After round 2 the server emits `awaiting_curveball`; the audience's text (clampe
 
 **Fail-open convention.** Auxiliary modules (classifier, integrity gate, speech eval, claim extraction, vector memory, TTS, grounding) catch their own errors and return a neutral result so a debate never breaks because an enhancer failed. `run_round` uses `asyncio.gather(..., return_exceptions=True)` and substitutes defaults. Keep new enhancers consistent with this.
 
-**Multilingual.** `language` (`en` or a Sarvam code like `hi-IN`) flows request → `argue`/`judge`/`reflect` (appends a language directive) → `tts.synthesize` (English → Fish Audio; otherwise Sarvam Bulbul). The judge's `Winner: PRO|CON|TIE` line must stay in English because it's parsed.
+**Multilingual.** `language` (`en` or a Sarvam code like `hi-IN`) flows request → `argue`/`judge`/`reflect` (appends a language directive) → `tts.synthesize` (English → Fish Audio, falling back to Sarvam `en-IN` when Fish fails; otherwise Sarvam Bulbul). The judge's `Winner: PRO|CON|TIE` line must stay in English because it's parsed.
 
 **Vector memory** (`vector_store.py`): Gemini embeddings (768-d) in a lazily-created Pinecone index; round 1 queries it in parallel with query generation and the result rides in `topic_meta["memory"]`.
 
