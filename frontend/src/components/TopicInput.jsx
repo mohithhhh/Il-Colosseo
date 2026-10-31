@@ -23,14 +23,21 @@ export const LANGUAGES = [
   { code: "od-IN", label: "ଓଡ଼ିଆ" },
 ];
 
-export default function TopicInput({ onStart, disabled }) {
+// Human vs AI: null = watch two AIs; "PRO"/"CON" = the user argues that side.
+const SIDES = [
+  { value: null, label: "Watch" },
+  { value: "PRO", label: "Argue for" },
+  { value: "CON", label: "Argue against" },
+];
+
+export default function TopicInput({ onStart, disabled, language, onLanguageChange }) {
   const [topic, setTopic] = useState("");
-  const [language, setLanguage] = useState("en");
+  const [humanSide, setHumanSide] = useState(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const trimmed = topic.trim();
-    if (trimmed) onStart(trimmed, language);
+    if (trimmed) onStart(trimmed, language, humanSide);
   };
 
   const handlePreset = (preset) => {
@@ -92,6 +99,30 @@ export default function TopicInput({ onStart, disabled }) {
         ))}
       </div>
 
+      <div className="glass-pill flex items-center gap-1 p-1" role="radiogroup" aria-label="Your role">
+        {SIDES.map(({ value, label }) => (
+          <button
+            key={label}
+            type="button"
+            role="radio"
+            aria-checked={humanSide === value}
+            onClick={() => setHumanSide(value)}
+            disabled={disabled}
+            className="rounded-full px-3 py-1"
+            style={{
+              fontSize: "0.72rem",
+              fontWeight: humanSide === value ? 500 : 300,
+              color: humanSide === value ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.5)",
+              background: humanSide === value ? "rgba(255,255,255,0.14)" : "transparent",
+              border: "none",
+              cursor: disabled ? "not-allowed" : "pointer",
+            }}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
       <label className="glass-pill flex items-center gap-2 px-4 py-1.5">
         <span
           style={{
@@ -106,7 +137,7 @@ export default function TopicInput({ onStart, disabled }) {
         </span>
         <select
           value={language}
-          onChange={(e) => setLanguage(e.target.value)}
+          onChange={(e) => onLanguageChange(e.target.value)}
           disabled={disabled}
           style={{
             background: "transparent",
