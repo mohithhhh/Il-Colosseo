@@ -55,4 +55,6 @@ After round 2 the server emits `awaiting_curveball`; the audience's text (clampe
 
 - `README.md` is partly stale: it omits Pinecone memory, Live voice and grounding, and lists the fallback model as `gemini-2.5-flash-lite` (code uses `gemini-flash-lite-latest`). Trust the code.
 - `backend/debates/*.json` artifacts are written to a path relative to the process CWD (so run uvicorn from `backend/`); some sample artifacts are checked in.
+- Primary model is `gemini-3.1-flash-lite-preview` (`gemini_client.py`). It's a preview ID, so if every call starts failing, check whether it was retired before debugging elsewhere.
+- `frontend/.env` is tracked in git and `frontend/.gitignore` doesn't ignore it. Keep only `VITE_*` values there; secrets go in `backend/.env`.
 - CORS is wide open (`allow_origins=["*"]`).
