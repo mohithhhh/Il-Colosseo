@@ -95,7 +95,16 @@ _MAX_TRACKED_IPS = 10_000
 _hits: OrderedDict[str, deque] = OrderedDict()  # LRU: least recently seen IP first
 
 
+_warned_proxy = False
+
+
 def _client_ip(conn: HTTPConnection) -> str:
+    global _warned_proxy
+    if not TRUSTED_PROXY_HOPS and not _warned_proxy and "x-forwarded-for" in conn.headers:
+        # Behind a proxy with hops=0, every user shares the proxy's IP — and one rate-limit bucket.
+        _warned_proxy = True
+        print("[RateLimit] X-Forwarded-For present but TRUSTED_PROXY_HOPS=0; rate limiting is per-proxy, "
+              "not per-user. Set TRUSTED_PROXY_HOPS to the number of proxies in front of the app.")
     if TRUSTED_PROXY_HOPS:
         fwd = [
             p.strip()
